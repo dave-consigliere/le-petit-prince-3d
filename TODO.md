@@ -19,18 +19,18 @@
 | Domaine               | Progression |
 | --------------------- | ----------: |
 | Préproduction         |       100 % |
-| Architecture          |        45 % |
-| Gameplay              |         0 % |
-| Environnements        |         5 % |
-| Personnages           |         0 % |
+| Architecture          |        60 % |
+| Gameplay              |        10 % |
+| Environnements        |        15 % |
+| Personnages           |        10 % |
 | Interface utilisateur |         5 % |
 | Dialogues             |         0 % |
 | Audio                 |         0 % |
 | Sauvegarde            |         0 % |
-| Optimisation          |        10 % |
-| Tests                 |        15 % |
-| Documentation         |        40 % |
-| **Projet global**     |    **12 %** |
+| Optimisation          |        15 % |
+| Tests                 |        25 % |
+| Documentation         |        45 % |
+| **Projet global**     |    **19 %** |
 
 ---
 
@@ -91,12 +91,21 @@
 
 # Phase 3 — Joueur
 
-* ⬜ Déplacement
-* ⬜ Course
-* ⬜ Collision
-* ⬜ Caméra troisième personne
-* ⬜ Caméra libre
-* ⬜ Animation du joueur
+* 🟩 Déplacement (contrôleur cinématique, relatif à la caméra, tangent au sol)
+* 🟩 Course (Maj ; amortissement exponentiel des vitesses)
+* 🟩 Collision (sol analytique exact + obstacles cylindriques avec glissement + limite du monde)
+* 🟩 Caméra troisième personne (orbitale : clic gauche, zoom molette, ré-alignement gravité)
+* ⬜ Caméra libre (mode photo — amélioration future)
+* 🟨 Animation du joueur (procédurale sur avatar provisoire : marche, inclinaison, respiration)
+
+## Acquis structurants du jalon M1
+
+* 🟩 Abstraction `ChampGravite` (plan + sphérique) : le MÊME contrôleur marche
+  sur le désert et autour d'une planète — la gravité de B-612 est validée
+* 🟩 Bruit cohérent déterministe (`utilities/Bruit.ts`) : terrain visuel = sol physique
+* 🟩 Avatar provisoire du Petit Prince (volumes stylisés, couleurs des aquarelles)
+* 🟩 Scène prototype B-612 (3 volcans dont 1 éteint, rose provisoire, ciel étoilé)
+* 🟩 Bascule de scènes de développement (touches 1/2) — préfigure le voyage interplanétaire
 
 ---
 
@@ -104,23 +113,23 @@
 
 ## Désert
 
-* 🟨 Terrain (dunes sinusoïdales de la scène de test — à remplacer par bruit cohérent au M1)
-* ⬜ Dunes (version définitive)
-* ⬜ Rochers
+* 🟩 Terrain (bruit fractal déterministe, graine 612 ; fonction unique visuel + physique)
+* 🟩 Dunes (4 octaves de fBm ; relief praticable validé par tests)
+* 🟩 Rochers (14 rochers déterministes, obstacles avec glissement)
 * ⬜ Puits
 * ⬜ Avion
-* 🟨 Éclairage (base posée)
+* 🟩 Éclairage (soleil chaud + hémisphérique, brume teintée papier)
 * ⬜ Vent
 * ⬜ Ambiance sonore
 
 ## Astéroïde B-612
 
-* ⬜ Sol
-* ⬜ Rose
-* ⬜ Volcan actif
-* ⬜ Volcan éteint
+* 🟨 Sol (sphère praticable — gravité sphérique validée ; relief définitif au M2)
+* 🟨 Rose (volume provisoire ; version animée au M2)
+* 🟨 Volcan actif (2 cônes provisoires)
+* 🟨 Volcan éteint (cône provisoire, plus petit — « on ne sait jamais ! »)
 * ⬜ Baobabs
-* 🟨 Ciel étoilé (prototype d'étoiles instanciées dans la scène de test)
+* 🟩 Ciel étoilé (900 étoiles instanciées, fond nuit spatiale douce)
 
 ## Autres planètes
 
@@ -317,7 +326,31 @@ Pour chacun :
 
 # Notes de développement
 
-## Session du 10/06/2026 — Jalon M0 : Socle technique
+## Session du 10/06/2026 (2) — Jalon M1 : Joueur
+
+* **Objectif :** déplacement 3e personne agréable, collisions simples, caméra de suivi, et validation anticipée de la gravité sphérique de B-612.
+* **Travaux réalisés :**
+  * `physics/ChampGravite.ts` : abstraction du « haut » local et du sol (implémentations plan et sphérique) — le contrôleur et la caméra ignorent la forme du monde ;
+  * `characters/joueur/ControleurJoueur.ts` : contrôleur cinématique testable sans DOM (commande + base caméra injectées), vitesses amorties, orientation tangente lissée ;
+  * `physics/Obstacles.ts` : obstacles cylindriques avec glissement tangent (pas de moteur physique généraliste — choix assumé pour un jeu contemplatif) ;
+  * `engine/CameraOrbitale.ts` : caméra orbitale (clic gauche, molette) dont le rig se ré-aligne en douceur sur le haut local — l'horizon bascule naturellement sur B-612 ;
+  * `utilities/Bruit.ts` : bruit de valeur + fBm déterministe ; le terrain du désert et son sol physique partagent une seule fonction (collisions exactes par construction) ;
+  * scènes `desert` (terrain fractal, 14 rochers-obstacles, planète suspendue) et `proto-b612` (sphère praticable, 3 volcans, rose provisoire) ; bascule 1/2 ;
+  * avatar provisoire du Petit Prince (habit vert d'eau, cheveux et écharpe d'or) avec animation procédurale ; entrées étendues (ZQSD/WASD/flèches via codes physiques, orbite, molette) ;
+  * 21 nouveaux tests (31 au total) dont : tour complet d'une planète en restant exactement à sa surface, avatar « debout » sur le flanc d'une sphère, glissement le long d'un rocher.
+* **Difficultés rencontrées :** nouveaux fichiers parasites apparus dans le conteneur (dossier `Joueur/` en casse différente, `CameraSuivi.ts`, etc.) — supprimés ; la liste `find` est désormais vérifiée avant chaque validation.
+* **Décisions techniques :**
+  * zéro allocation par image dans le contrôleur, la caméra et les obstacles (vecteurs temporaires partagés) ;
+  * les entrées utilisent les codes physiques (`KeyW` = touche Z en AZERTY) : compatibilité AZERTY/QWERTY automatique, flèches en secours ;
+  * la limite du monde « glisse » le long du bord (pas de mur brutal) — cohérent avec l'expérience contemplative.
+* **Prochaines étapes (jalon M2 — tranche verticale B-612) :**
+  1. B-612 définitif : relief doux, Rose animée sous son globe, baobabs à arracher, volcans à ramoner ;
+  2. système de dialogue (arbres JSON localisés, fenêtre, historique) ;
+  3. journal de voyage (premières pensées notées en observant) ;
+  4. première musique et déblocage audio à la première interaction ;
+  5. **action utilisateur :** `npm run dev`, marcher (ZQSD/flèches), courir (Maj), orbiter (clic gauche), zoomer (molette), puis touche **2** : faire le tour de B-612 et vérifier la bascule d'horizon.
+
+## Session du 10/06/2026 (1) — Jalon M0 : Socle technique
 
 * **Objectif :** initialiser le projet et bâtir le socle moteur (critère de sortie : scène stylisée fluide, chaîne de qualité verte).
 * **Travaux réalisés :**

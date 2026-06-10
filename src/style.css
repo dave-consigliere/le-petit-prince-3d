@@ -32,3 +32,19 @@ body {
   pointer-events: none;
   user-select: none;
 }
+
+/* Aide-mémoire des commandes (outil de développement, jalon M1). */
+#hud-aide {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 12px;
+  color: rgba(60, 42, 20, 0.7);
+  background: rgba(255, 250, 240, 0.55);
+  border-radius: 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
