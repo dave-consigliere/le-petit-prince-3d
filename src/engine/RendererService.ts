@@ -47,6 +47,9 @@ export class RendererService {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ReinhardToneMapping;
     this.renderer.toneMappingExposure = 1.1;
+    // tabindex=-1 : focusable par code sans apparaître dans la navigation tab.
+    this.renderer.domElement.tabIndex = -1;
+    this.renderer.domElement.style.outline = 'none';
     conteneur.appendChild(this.renderer.domElement);
 
     // Cible de rendu pour la passe de post-traitement (demi-résolution possible).
@@ -134,6 +137,11 @@ export class RendererService {
     this.renderer.setSize(largeur, hauteur);
     const ratio = this.renderer.getPixelRatio();
     this.cibleRendu.setSize(Math.round(largeur * ratio), Math.round(hauteur * ratio));
+  }
+
+  /** Retourne le canvas pour le focus clavier. */
+  obtenirCanvas(): HTMLCanvasElement {
+    return this.renderer.domElement;
   }
 
   /** Libère les ressources GPU. */

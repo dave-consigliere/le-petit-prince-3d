@@ -50,12 +50,12 @@ export class Bootstrap {
       audio.muet = parametres.muet;
     }
 
-    // La carte vit au niveau du Bootstrap : elle survit aux changements de scènes.
-    const carte = new CartePlanetes(progression, LocalizationManager);
-    carte.surVoyage((id) => void voyager(id));
-
     const rendu = new RendererService(conteneur);
     const scenes = new SceneManager(services);
+
+    // La carte vit ici : elle survit aux changements de scènes ET voit la progression restaurée.
+    const carte = new CartePlanetes(progression, LocalizationManager);
+    carte.surVoyage((id) => void voyager(id));
 
     // Déblocage audio
     const debloquerAudio = () => {
@@ -163,6 +163,8 @@ export class Bootstrap {
     });
 
     boucle.demarrer();
+    // Focus automatique sur le canvas : les touches fonctionnent sans clic préalable.
+    rendu.obtenirCanvas().focus();
     Logger.info('Le Petit Prince — jalon M3 démarré.');
   }
 }
