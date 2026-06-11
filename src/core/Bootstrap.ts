@@ -12,22 +12,23 @@ import { SceneManager } from '../scenes/SceneManager';
 import type { ISceneModule } from '../scenes/ISceneModule';
 import { SceneDesert } from '../scenes/desert/SceneDesert';
 import { SceneB612 } from '../scenes/b612/SceneB612';
+import { ProgressionService } from '../game/progression/ProgressionService';
+import { SaveManager } from '../save/SaveManager';
+import { Journal } from '../game/Journal';
 import { CONFIG } from '../configuration/Config';
 import { LocalizationManager } from '../localization/LocalizationManager';
 import { Logger } from '../utilities/Logger';
 
 export class Bootstrap {
-  private static readonly FABRIQUES: Record<string, () => ISceneModule> = {
-    Digit1: () => new SceneDesert(),
-    Digit2: () => new SceneB612(),
-  };
-
   static async demarrer(): Promise<void> {
     const conteneur = document.getElementById('application');
     if (!conteneur) throw new Error('Conteneur #application introuvable.');
 
     const evenements = new EventBus<EvenementsJeu>();
     const audio = new AudioManager(evenements);
+    const progression = new ProgressionService(evenements);
+    const journal = new Journal(evenements);
+    const save = new SaveManager(progression, journal);
 
     const services: ServicesJeu = {
       evenements,
@@ -36,13 +37,22 @@ export class Bootstrap {
       camera: new CameraManager(window.innerWidth, window.innerHeight),
       ressources: new AssetManager(),
       audio,
+      progression,
+      save,
     };
+
+    // Charger la sauvegarde existante
+    const parametres = save.charger();
+    if (parametres) {
+      audio.volumeMusique = parametres.volumeMusique;
+      audio.volumeAmbiance = parametres.volumeAmbiance;
+      audio.muet = parametres.muet;
+    }
 
     const rendu = new RendererService(conteneur);
     const scenes = new SceneManager(services);
 
-    // Déblocage audio au premier geste utilisateur (politique navigateurs).
-    // debloquer() est async : la piste en attente est jouée après le resume().
+    // Déblocage audio
     const debloquerAudio = () => {
       void audio.debloquer();
       window.removeEventListener('pointerdown', debloquerAudio);
@@ -51,28 +61,59 @@ export class Bootstrap {
     window.addEventListener('pointerdown', debloquerAudio);
     window.addEventListener('keydown', debloquerAudio);
 
+    // Fabrique de scènes : desktop → id de scène
+    const fabriques: Record<string, () => ISceneModule> = {
+      desert: () => new SceneDesert(),
+      b612: () => new SceneB612(),
+    };
+
     let chargementEnCours = false;
-    const basculerScene = async (fabrique: () => ISceneModule): Promise<void> => {
+    const voyager = async (destination: string): Promise<void> => {
       if (chargementEnCours) return;
       chargementEnCours = true;
       try {
+        const fabrique = fabriques[destination];
+        if (!fabrique) {
+          Logger.avertissement(`Scène inconnue : ${destination}`);
+          return;
+        }
         await scenes.chargerScene(fabrique());
-        const sceneActive = scenes.scene;
-        if (sceneActive) rendu.definirPipeline(sceneActive, services.camera.camera);
+        const sc = scenes.scene;
+        if (sc) rendu.definirPipeline(sc, services.camera.camera);
       } finally {
         chargementEnCours = false;
       }
     };
 
-    await basculerScene(() => new SceneDesert());
+    // Démarrage sur le désert
+    await voyager('desert');
 
-    // Bascule de scènes (développement + futur voyage interplanétaire)
+    // Bascule via touche (outil de dev) ET via la carte des planètes
     window.addEventListener('keydown', (e) => {
-      const fab = Bootstrap.FABRIQUES[e.code];
-      if (fab) void basculerScene(fab);
+      if (e.code === 'Digit1') void voyager('desert');
+      if (e.code === 'Digit2') void voyager('b612');
     });
 
-    // HUD de développement
+    // Événement de voyage déclenché par la CartePlanetes
+    evenements.abonner('jeu:voyager', ({ destination }) => {
+      void voyager(destination);
+    });
+
+    // Sauvegarde automatique toutes les 60 secondes
+    setInterval(() => {
+      save.sauvegarder({
+        volumeMusique: 0.35,
+        volumeAmbiance: 0.12,
+        muet: audio.muet,
+      });
+    }, 60_000);
+
+    // Sauvegarde au changement de scène
+    evenements.abonner('scene:chargee', () => {
+      save.sauvegarder({ volumeMusique: 0.35, volumeAmbiance: 0.12, muet: audio.muet });
+    });
+
+    // HUD
     const hud = document.createElement('div');
     hud.id = 'hud-fps';
     document.body.appendChild(hud);
@@ -83,14 +124,13 @@ export class Bootstrap {
 
     let imgs = 0,
       dur = 0;
-
     const boucle = new GameLoop(
       CONFIG.FREQUENCE_MAJ_FIXE,
       (dtFixe) => {
         services.temps.avancer(dtFixe);
         scenes.mettreAJour(services.temps.delta);
       },
-      (_interp, dt) => {
+      (_i, dt) => {
         const sc = scenes.scene;
         if (sc) rendu.rendre(services.temps.tempsTotal, sc, services.camera.camera);
         imgs++;
@@ -108,10 +148,10 @@ export class Bootstrap {
         h = window.innerHeight;
       services.camera.redimensionner(l, h);
       rendu.redimensionner(l, h);
-      services.evenements.emettre('jeu:redimensionnement', { largeur: l, hauteur: h });
+      evenements.emettre('jeu:redimensionnement', { largeur: l, hauteur: h });
     });
 
     boucle.demarrer();
-    Logger.info('Le Petit Prince — jalon M2 démarré.');
+    Logger.info('Le Petit Prince — jalon M3 démarré.');
   }
 }

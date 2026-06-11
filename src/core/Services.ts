@@ -5,6 +5,8 @@ import type { InputManager } from '../engine/InputManager';
 import type { CameraManager } from '../engine/CameraManager';
 import type { AssetManager } from '../engine/AssetManager';
 import type { AudioManager } from '../audio/AudioManager';
+import type { ProgressionService } from '../game/progression/ProgressionService';
+import type { SaveManager } from '../save/SaveManager';
 
 /**
  * Conteneur des services partagés, injecté dans les scènes et les systèmes.
@@ -17,4 +19,6 @@ export interface ServicesJeu {
   camera: CameraManager;
   ressources: AssetManager;
   audio: AudioManager;
+  progression: ProgressionService;
+  save: SaveManager;
 }

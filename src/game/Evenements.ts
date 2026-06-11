@@ -24,4 +24,13 @@ export type EvenementsJeu = {
 
   /** Une musique doit changer (crossfade). */
   'audio:musique': { piste: string; fondu: number };
+
+  /** Un nouveau jour narratif commence. */
+  'progression:jour': { jour: number };
+
+  /** Un souvenir vient d'être débloqué. */
+  'progression:souvenir': { id: string };
+
+  /** Le joueur demande un voyage vers une autre scène. */
+  'jeu:voyager': { destination: string };
 };

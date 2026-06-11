@@ -211,3 +211,102 @@ body {
   z-index: 90;
   transition: opacity 0.2s;
 }
+
+/* =====================================================================
+   CARTE DES PLANÈTES
+   ===================================================================== */
+#carte-planetes {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(700px, 94vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: rgba(253, 248, 238, 0.97);
+  border: 1.5px solid rgba(180, 145, 90, 0.35);
+  border-radius: 18px;
+  padding: 22px 26px;
+  box-shadow: 0 6px 40px rgba(80, 50, 20, 0.24);
+  font-family: Georgia, 'Times New Roman', serif;
+  z-index: 120;
+}
+
+.carte-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(160, 120, 70, 0.25);
+  padding-bottom: 10px;
+}
+
+.carte-entete h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #3a2810;
+  font-style: italic;
+}
+
+.carte-fermer {
+  background: transparent;
+  border: 1px solid rgba(160, 120, 70, 0.4);
+  border-radius: 6px;
+  padding: 3px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #7a5830;
+  cursor: pointer;
+}
+.carte-fermer:hover { background: rgba(200, 170, 120, 0.25); }
+
+.carte-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.carte-planete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  background: rgba(245, 238, 220, 0.7);
+  border: 1px solid rgba(160, 120, 70, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.1s;
+}
+.carte-planete:hover:not(:disabled) {
+  background: rgba(235, 220, 195, 0.9);
+  transform: translateY(-2px);
+}
+
+.carte-planete--verrouillee {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.carte-globe {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  box-shadow: inset -6px -4px 12px rgba(0,0,0,0.18), inset 3px 3px 8px rgba(255,255,255,0.3);
+}
+
+.carte-nom {
+  font-size: 12px;
+  font-weight: bold;
+  color: #3a2810;
+  text-align: center;
+}
+
+.carte-desc {
+  font-size: 11px;
+  color: #7a6040;
+  text-align: center;
+  font-style: italic;
+  line-height: 1.3;
+}

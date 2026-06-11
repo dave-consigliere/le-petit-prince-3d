@@ -78,7 +78,9 @@ export class AudioManager {
     if (this.gainMusique) this.gainMusique.gain.value = valeur ? 0 : this._volumeMusique;
     if (this.gainAmbiance) this.gainAmbiance.gain.value = valeur ? 0 : this._volumeAmbiance;
   }
-  get muet(): boolean { return this._muet; }
+  get muet(): boolean {
+    return this._muet;
+  }
 
   /** Ambiance sonore de la scène (oscillateur grave en boucle). */
   jouerAmbiance(type: 'desert' | 'espace' | 'silence'): void {
@@ -91,14 +93,20 @@ export class AudioManager {
     const filtre = this.contexte.createBiquadFilter();
     filtre.type = 'lowpass';
     if (type === 'desert') {
-      osc.type = 'sawtooth'; osc.frequency.value = 55; filtre.frequency.value = 200;
+      osc.type = 'sawtooth';
+      osc.frequency.value = 55;
+      filtre.frequency.value = 200;
     } else {
-      osc.type = 'sine'; osc.frequency.value = 28; filtre.frequency.value = 80;
+      osc.type = 'sine';
+      osc.frequency.value = 28;
+      filtre.frequency.value = 80;
     }
     const fade = this.contexte.createGain();
     fade.gain.setValueAtTime(0, this.contexte.currentTime);
     fade.gain.linearRampToValueAtTime(0.06, this.contexte.currentTime + 3);
-    osc.connect(filtre); filtre.connect(fade); fade.connect(this.gainAmbiance);
+    osc.connect(filtre);
+    filtre.connect(fade);
+    fade.connect(this.gainAmbiance);
     osc.start();
     this.sourceAmbiance = osc;
   }
@@ -118,9 +126,18 @@ export class AudioManager {
       g.gain.setValueAtTime(g.gain.value, t);
       g.gain.linearRampToValueAtTime(0, t + dureeFondu);
       const anciens = this.oscillateursActifs.splice(0);
-      setTimeout(() => {
-        for (const osc of anciens) { try { osc.stop(); } catch { /* ok */ } }
-      }, (dureeFondu + 0.3) * 1000);
+      setTimeout(
+        () => {
+          for (const osc of anciens) {
+            try {
+              osc.stop();
+            } catch {
+              /* ok */
+            }
+          }
+        },
+        (dureeFondu + 0.3) * 1000,
+      );
     }
 
     // Fondu entrant.
@@ -135,8 +152,18 @@ export class AudioManager {
   }
 
   liberer(): void {
-    for (const osc of this.oscillateursActifs) { try { osc.stop(); } catch { /* ok */ } }
-    try { this.sourceAmbiance?.stop(); } catch { /* ok */ }
+    for (const osc of this.oscillateursActifs) {
+      try {
+        osc.stop();
+      } catch {
+        /* ok */
+      }
+    }
+    try {
+      this.sourceAmbiance?.stop();
+    } catch {
+      /* ok */
+    }
     void this.contexte?.close();
     this.contexte = null;
   }
@@ -152,18 +179,18 @@ export class AudioManager {
     if (!this.contexte) return;
 
     const notesDesert = [261.63, 329.63, 392.0, 523.25, 659.25];
-    const notesB612   = [293.66, 370.0,  440.0, 587.33, 740.0];
+    const notesB612 = [293.66, 370.0, 440.0, 587.33, 740.0];
     const notes = piste.includes('b612') ? notesB612 : notesDesert;
 
     // Décalages temporels entre les notes de la séquence (en secondes).
     const decalages = [0, 1.4, 2.6, 4.2, 5.5];
     const dureeNote = 3.5;
-    const periode   = 7.0;
+    const periode = 7.0;
 
     this.oscillateursActifs = [];
 
     for (let i = 0; i < notes.length; i++) {
-      const freq     = notes[i] ?? 440;
+      const freq = notes[i] ?? 440;
       const decalage = decalages[i] ?? 0;
 
       const osc = this.contexte.createOscillator();

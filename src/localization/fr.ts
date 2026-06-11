@@ -59,6 +59,27 @@ export const FR = {
       texte:
         'Quand on est très triste, on aime les couchers de soleil. Il suffit de tirer sa chaise de quelques pas.',
     },
+    desert_rencontre: {
+      titre: `La rencontre`,
+      texte: `Il est apparu au lever du jour, dans ce désert où je me croyais seul. Dessine-moi un mouton, a-t-il dit. Simplement.`,
+    },
+    desert_mouton: {
+      titre: `Le mouton dans la caisse`,
+      texte: `J'ai dessiné une caisse. Le mouton était dedans. Il a souri — c'est tout à fait comme ça qu'il le voulait.`,
+    },
+    desert_origine: {
+      titre: `L'astéroïde B-612`,
+      texte: `Il venait d'une toute petite planète. À peine plus grande qu'une maison, quelque part dans les étoiles.`,
+    },
+    desert_baobabs: {
+      titre: `La discipline des baobabs`,
+      texte:
+        'Il faut arracher les mauvaises graines chaque matin. Si on tarde, elles deviennent des baobabs. Et les baobabs font éclater les planètes.',
+    },
+    desert_puits: {
+      titre: `L'eau bonne pour le cœur`,
+      texte: `Nous avons marché des heures dans l'obscurité. L'eau du puits avait un goût différent — comme si la marche sous les étoiles l'avait rendue meilleure.`,
+    },
     desert_etoiles: {
       titre: 'Les étoiles',
       texte:
@@ -76,7 +97,10 @@ export const FR = {
     ramoner: 'Ramoner le volcan',
     arracher: 'Arracher le baobab',
     mettreGlobe: 'Mettre le globe',
-    aide: 'ZQSD · Flèches : marcher  ·  Maj : courir  ·  E : interagir  ·  J : journal  ·  Clic gauche : orbiter  ·  Molette : zoom  ·  1 : Désert  ·  2 : B-612',
+    carte: 'Carte des planètes',
+    sauvegarder: 'Sauvegarder',
+    nouvellePartie: 'Nouvelle partie',
+    aide: 'ZQSD · Flèches : marcher  ·  Maj : courir  ·  E : interagir  ·  J : journal  ·  M : carte  ·  Clic gauche : orbiter  ·  Molette : zoom',
   },
 
   lieux: {

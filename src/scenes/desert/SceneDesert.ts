@@ -6,23 +6,42 @@ import { EnsembleObstacles } from '../../physics/Obstacles';
 import {
   ControleurJoueur,
   type CommandeDeplacement,
+  type BaseCamera,
 } from '../../characters/joueur/ControleurJoueur';
-import type { BaseCamera } from '../../characters/joueur/ControleurJoueur';
 import { AvatarJoueur } from '../../characters/joueur/AvatarJoueur';
+import { AvatarAviateur } from '../../characters/aviateur/AvatarAviateur';
 import { CameraOrbitale } from '../../engine/CameraOrbitale';
-import { creerRampeAquarelle } from '../../shaders/RampeAquarelle';
 import { creerFondDegrade, creerEtoiles } from '../communs/ElementsCiel';
 import { libererScene } from '../../utilities/Liberation';
 import { Bruit2D } from '../../utilities/Bruit';
+import { Avion } from './objets/Avion';
+import { Puits } from './objets/Puits';
+import { Journal } from '../../game/Journal';
+import { DialogueManager } from '../../dialogues/DialogueManager';
+import {
+  dialogueAviateur_Jour1,
+  dialogueAviateur_Jour3,
+  dialogueAviateur_Jour8,
+} from '../../dialogues/arbres/dialogueAviateur';
+import type { ArbreDialogue } from '../../dialogues/TypesDialogue';
+import { FenetreDialogue } from '../../ui/FenetreDialogue';
+import { FenetreJournal } from '../../ui/FenetreJournal';
+import { BoutonInteraction, libellePourType } from '../../ui/BoutonInteraction';
+import { CartePlanetes } from '../../ui/carte/CartePlanetes';
+import { LocalizationManager } from '../../localization/LocalizationManager';
+import type { ProgressionService } from '../../game/progression/ProgressionService';
+import { creerRampeAquarelle } from '../../shaders/RampeAquarelle';
 import { CONFIG } from '../../configuration/Config';
 
-/**
- * Le désert (jalon M1) — futur hub narratif du jeu.
- *
- * Le terrain est défini par UNE fonction analytique (bruit fractal) qui
- * sert à la fois à générer le maillage visuel et au champ de gravité :
- * le joueur épouse donc exactement le relief, sans maillage de collision.
- */
+interface PointInteraction {
+  position: THREE.Vector3;
+  rayon: number;
+  type: string;
+  action: () => void;
+}
+
+const TMP_HAUT = new THREE.Vector3();
+
 export class SceneDesert implements ISceneModule {
   readonly nom = 'desert';
 
@@ -32,16 +51,26 @@ export class SceneDesert implements ISceneModule {
     (x, z) => this.hauteurTerrain(x, z),
     CONFIG.TERRAIN_DESERT.RAYON_MONDE,
   );
-
   private readonly obstacles = new EnsembleObstacles();
+
   private services: ServicesJeu | null = null;
+  private progression: ProgressionService | null = null;
   private controleur: ControleurJoueur | null = null;
   private avatar: AvatarJoueur | null = null;
+  private avatarAviateur: AvatarAviateur | null = null;
   private cameraOrbitale: CameraOrbitale | null = null;
+  private puits: Puits | null = null;
   private planeteSuspendue: THREE.Mesh | null = null;
   private tempsLocal = 0;
 
-  // Objets réutilisés à chaque pas (zéro allocation par image).
+  private journal!: Journal;
+  private dialogueManager!: DialogueManager;
+  private fenetreDialogue!: FenetreDialogue;
+  private fenetreJournal!: FenetreJournal;
+  private boutonInteraction!: BoutonInteraction;
+  private cartePlanetes!: CartePlanetes;
+
+  private readonly points: PointInteraction[] = [];
   private readonly commande: CommandeDeplacement = {
     axeHorizontal: 0,
     axeVertical: 0,
@@ -52,8 +81,15 @@ export class SceneDesert implements ISceneModule {
     droite: new THREE.Vector3(1, 0, 0),
   };
 
+  private journalTouche = false;
+  private carteTouche = false;
+  private interactionTouche = false;
+
   async charger(services: ServicesJeu): Promise<void> {
     this.services = services;
+    // La progression est injectée par le Bootstrap après création
+    this.progression =
+      (services as ServicesJeu & { progression?: ProgressionService }).progression ?? null;
 
     this.scene.background = creerFondDegrade(
       CONFIG.PALETTE_DESERT.cielHaut,
@@ -69,12 +105,29 @@ export class SceneDesert implements ISceneModule {
       creerEtoiles({ nombre: 400, rayon: 250, hauteurMinimale: 14, taille: 1.6, opacite: 0.85 }),
     );
 
-    // Joueur : contrôleur cinématique + avatar provisoire.
+    this.placerAvion();
+    this.placerPuits();
+    this.placerAviateur();
+
     this.controleur = new ControleurJoueur(this.champ, new THREE.Vector3(0, 0, 6), this.obstacles);
     this.avatar = new AvatarJoueur();
     this.scene.add(this.avatar.groupe);
-
     this.cameraOrbitale = new CameraOrbitale(services.camera.camera, this.champ);
+
+    this.journal = new Journal(services.evenements);
+    this.dialogueManager = new DialogueManager(this.journal, services.evenements);
+    this.fenetreDialogue = new FenetreDialogue(this.dialogueManager);
+    this.fenetreJournal = new FenetreJournal(this.journal);
+    this.boutonInteraction = new BoutonInteraction();
+    this.cartePlanetes = new CartePlanetes(
+      this.progression ?? this.creerProgressionVide(),
+      LocalizationManager,
+    );
+
+    // Voyage depuis la carte
+    this.cartePlanetes.surVoyage((id) => {
+      services.evenements.emettre('jeu:voyager', { destination: id });
+    });
   }
 
   demarrer(): void {
@@ -88,27 +141,56 @@ export class SceneDesert implements ISceneModule {
     if (!this.services || !this.controleur || !this.avatar || !this.cameraOrbitale) return;
     this.tempsLocal += dtFixe;
 
-    // 1. Intention du joueur, lue depuis les entrées consolidées.
     const entrees = this.services.entrees;
-    this.commande.axeHorizontal = entrees.axeHorizontal();
-    this.commande.axeVertical = entrees.axeVertical();
-    this.commande.course = entrees.courseActive();
+    const dialogueActif = this.dialogueManager.etat.actif;
 
-    // 2. Déplacement relatif à la caméra, puis synchronisation de l'avatar.
-    this.cameraOrbitale.obtenirBase(this.baseCamera);
-    this.controleur.maj(dtFixe, this.commande, this.baseCamera);
+    if (!dialogueActif) {
+      this.commande.axeHorizontal = entrees.axeHorizontal();
+      this.commande.axeVertical = entrees.axeVertical();
+      this.commande.course = entrees.courseActive();
+      this.cameraOrbitale.obtenirBase(this.baseCamera);
+      this.controleur.maj(dtFixe, this.commande, this.baseCamera);
+    } else {
+      this.commande.axeHorizontal = 0;
+      this.commande.axeVertical = 0;
+    }
+
     this.avatar.groupe.position.copy(this.controleur.position);
     this.avatar.groupe.quaternion.copy(this.controleur.orientation);
     this.avatar.animer(dtFixe, this.controleur.vitesseNormalisee);
-
-    // 3. Caméra de suivi.
+    this.avatarAviateur?.animer(dtFixe);
+    this.puits?.animer(dtFixe);
     this.cameraOrbitale.maj(dtFixe, this.controleur.position, entrees);
 
-    // 4. Vie discrète du décor.
     if (this.planeteSuspendue) {
       this.planeteSuspendue.position.y = 26 + Math.sin(this.tempsLocal * 0.4) * 0.6;
       this.planeteSuspendue.rotation.y += dtFixe * 0.08;
     }
+
+    this.mettreAJourInteraction();
+
+    // Touches
+    const eTouche = entrees.estEnfoncee('KeyE');
+    if (eTouche && !this.interactionTouche) {
+      this.interactionTouche = true;
+      if (dialogueActif) this.dialogueManager.avancer();
+      else this.declencher();
+    }
+    if (!eTouche) this.interactionTouche = false;
+
+    const jTouche = entrees.estEnfoncee('KeyJ');
+    if (jTouche && !this.journalTouche) {
+      this.journalTouche = true;
+      this.fenetreJournal.basculer();
+    }
+    if (!jTouche) this.journalTouche = false;
+
+    const mTouche = entrees.estEnfoncee('KeyM');
+    if (mTouche && !this.carteTouche) {
+      this.carteTouche = true;
+      this.cartePlanetes.basculer();
+    }
+    if (!mTouche) this.carteTouche = false;
   }
 
   obtenirScene(): THREE.Scene {
@@ -116,18 +198,18 @@ export class SceneDesert implements ISceneModule {
   }
 
   liberer(): void {
+    this.fenetreDialogue.liberer();
+    this.fenetreJournal.liberer();
+    this.boutonInteraction.liberer();
+    this.cartePlanetes.liberer();
     libererScene(this.scene);
   }
 
   // ---------------------------------------------------------------- privé --
 
-  /** Fonction de hauteur unique : visuel ET physique du terrain. */
   private hauteurTerrain(x: number, z: number): number {
-    const reglages = CONFIG.TERRAIN_DESERT;
-    return (
-      this.bruit.fbm(x * reglages.FREQUENCE, z * reglages.FREQUENCE, reglages.OCTAVES) *
-      reglages.AMPLITUDE
-    );
+    const r = CONFIG.TERRAIN_DESERT;
+    return this.bruit.fbm(x * r.FREQUENCE, z * r.FREQUENCE, r.OCTAVES) * r.AMPLITUDE;
   }
 
   private construireLumieres(): void {
@@ -144,62 +226,178 @@ export class SceneDesert implements ISceneModule {
   }
 
   private construireTerrain(): void {
-    const reglages = CONFIG.TERRAIN_DESERT;
-    const geometrie = new THREE.PlaneGeometry(
-      reglages.TAILLE,
-      reglages.TAILLE,
-      reglages.SEGMENTS,
-      reglages.SEGMENTS,
-    );
-    geometrie.rotateX(-Math.PI / 2);
-
-    const positions = geometrie.attributes['position'];
-    if (positions) {
-      for (let i = 0; i < positions.count; i++) {
-        positions.setY(i, this.hauteurTerrain(positions.getX(i), positions.getZ(i)));
+    const r = CONFIG.TERRAIN_DESERT;
+    const geo = new THREE.PlaneGeometry(r.TAILLE, r.TAILLE, r.SEGMENTS, r.SEGMENTS);
+    geo.rotateX(-Math.PI / 2);
+    const pos = geo.attributes['position'];
+    if (pos) {
+      for (let i = 0; i < pos.count; i++) {
+        pos.setY(i, this.hauteurTerrain(pos.getX(i), pos.getZ(i)));
       }
     }
-    geometrie.computeVertexNormals();
-
-    const materiau = new THREE.MeshToonMaterial({
-      color: CONFIG.PALETTE_DESERT.sable,
-      gradientMap: creerRampeAquarelle(),
-    });
-    this.scene.add(new THREE.Mesh(geometrie, materiau));
+    geo.computeVertexNormals();
+    this.scene.add(
+      new THREE.Mesh(
+        geo,
+        new THREE.MeshToonMaterial({
+          color: CONFIG.PALETTE_DESERT.sable,
+          gradientMap: creerRampeAquarelle(),
+        }),
+      ),
+    );
   }
 
-  /** Quelques rochers épars : repères visuels et sensation d'échelle. */
   private construireRochers(): void {
-    const geometrie = new THREE.DodecahedronGeometry(1, 0);
-    const materiau = new THREE.MeshToonMaterial({
+    const geo = new THREE.DodecahedronGeometry(1, 0);
+    const mat = new THREE.MeshToonMaterial({
       color: CONFIG.PALETTE_DESERT.roche,
       gradientMap: creerRampeAquarelle(),
     });
-
-    // Placement déterministe (bruit) : le désert est identique à chaque visite.
     for (let i = 0; i < 14; i++) {
       const angle = (i / 14) * Math.PI * 2 + this.bruit.valeur(i * 3.1, 0.5) * 0.8;
       const rayon = 24 + Math.abs(this.bruit.valeur(0.3, i * 2.7)) * 95;
       const x = Math.cos(angle) * rayon;
       const z = Math.sin(angle) * rayon;
-      const rocher = new THREE.Mesh(geometrie, materiau);
+      const rocher = new THREE.Mesh(geo, mat);
       const echelle = 0.7 + Math.abs(this.bruit.valeur(i * 1.7, i * 0.9)) * 1.6;
       rocher.scale.setScalar(echelle);
       rocher.position.set(x, this.hauteurTerrain(x, z) + echelle * 0.35, z);
       rocher.rotation.set(i * 0.7, i * 1.3, i * 0.4);
       this.scene.add(rocher);
-      // Le rocher devient un obstacle : le joueur glisse le long de lui.
       this.obstacles.ajouter(rocher.position, echelle * 0.85);
     }
   }
 
   private construirePlaneteSuspendue(): void {
-    const materiau = new THREE.MeshToonMaterial({
+    const mat = new THREE.MeshToonMaterial({
       color: CONFIG.PALETTE_DESERT.planete,
       gradientMap: creerRampeAquarelle([110, 170, 230, 255]),
     });
-    this.planeteSuspendue = new THREE.Mesh(new THREE.SphereGeometry(3, 48, 32), materiau);
+    this.planeteSuspendue = new THREE.Mesh(new THREE.SphereGeometry(3, 48, 32), mat);
     this.planeteSuspendue.position.set(-18, 26, -60);
     this.scene.add(this.planeteSuspendue);
+  }
+
+  private placerAvion(): void {
+    const avion = new Avion();
+    const x = -12,
+      z = -18;
+    avion.groupe.position.set(x, this.hauteurTerrain(x, z) + 0.1, z);
+    this.scene.add(avion.groupe);
+    this.obstacles.ajouter(avion.groupe.position, 2.2);
+    // L'avion peut être « inspecté » (entrée journal sur l'origine du voyage)
+    this.points.push({
+      position: avion.groupe.position.clone(),
+      rayon: 3.5,
+      type: 'observer',
+      action: () => {
+        this.journal.ajouter({
+          id: 'desert_avion',
+          titre: "L'avion en panne",
+          texte:
+            "C'est là que tout a commencé. Une panne au milieu du désert, à mille milles de tout.",
+        });
+      },
+    });
+  }
+
+  private placerPuits(): void {
+    const px = 8,
+      pz = 12;
+    const py = this.hauteurTerrain(px, pz);
+    this.puits = new Puits();
+    this.puits.groupe.position.set(px, py, pz);
+    this.scene.add(this.puits.groupe);
+    this.obstacles.ajouter(this.puits.groupe.position, 1.0);
+    this.points.push({
+      position: this.puits.groupe.position.clone(),
+      rayon: 2.5,
+      type: 'observer',
+      action: () => {
+        this.journal.ajouter({ id: 'desert_puits', ...LocalizationManager.journal.desert_puits });
+        this.progression?.remplirObjectif('trouver_puits');
+      },
+    });
+  }
+
+  private placerAviateur(): void {
+    const ax = -9,
+      az = -14;
+    const ay = this.hauteurTerrain(ax, az);
+    this.avatarAviateur = new AvatarAviateur();
+    this.avatarAviateur.groupe.position.set(ax, ay, az);
+    this.avatarAviateur.groupe.rotation.y = 0.8;
+    this.scene.add(this.avatarAviateur.groupe);
+    this.obstacles.ajouter(this.avatarAviateur.groupe.position, 1.0);
+
+    this.points.push({
+      position: this.avatarAviateur.groupe.position.clone(),
+      rayon: 2.8,
+      type: 'rose', // réutilise l'icône « parler »
+      action: () => {
+        const arbre = this.choisirDialogueAviateur();
+        this.dialogueManager.demarrer(arbre);
+        this.progression?.remplirObjectif('parler_aviateur_accueil');
+      },
+    });
+  }
+
+  private choisirDialogueAviateur(): ArbreDialogue {
+    const jour = this.progression?.jourActuel ?? 1;
+    if (jour >= 8) return dialogueAviateur_Jour8;
+    if (jour >= 3) return dialogueAviateur_Jour3;
+    return dialogueAviateur_Jour1;
+  }
+
+  private mettreAJourInteraction(): void {
+    if (!this.controleur || this.dialogueManager.etat.actif) {
+      this.boutonInteraction.masquer();
+      return;
+    }
+    let plusProche: PointInteraction | null = null;
+    let distMin = Infinity;
+    this.champ.obtenirHaut(this.controleur.position, TMP_HAUT);
+    for (const pt of this.points) {
+      const d = this.controleur.position.distanceTo(pt.position);
+      if (d < pt.rayon && d < distMin) {
+        distMin = d;
+        plusProche = pt;
+      }
+    }
+    if (plusProche) this.boutonInteraction.afficher(libellePourType(plusProche.type));
+    else this.boutonInteraction.masquer();
+  }
+
+  private declencher(): void {
+    if (!this.controleur) return;
+    let plusProche: PointInteraction | null = null;
+    let distMin = Infinity;
+    for (const pt of this.points) {
+      const d = this.controleur.position.distanceTo(pt.position);
+      if (d < pt.rayon && d < distMin) {
+        distMin = d;
+        plusProche = pt;
+      }
+    }
+    plusProche?.action();
+  }
+
+  /** Progression vide (si non injectée) pour les tests isolés. */
+  private creerProgressionVide() {
+    return {
+      estDebloque: () => false,
+      jourActuel: 1,
+      souvenirs: [] as string[],
+      remplirObjectif: () => undefined,
+      debloquerSouvenir: () => undefined,
+      abonner: () => () => undefined,
+      serialiser: () => ({
+        jourActuel: 1,
+        joursCompletes: [],
+        souvenirsDébloques: [],
+        objectifsRemplis: [],
+      }),
+      restaurer: () => undefined,
+    };
   }
 }
