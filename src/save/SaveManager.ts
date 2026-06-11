@@ -15,7 +15,7 @@ import { Logger } from '../utilities/Logger';
  *   - paramètres utilisateur (volumes).
  */
 
-const CLE_SAUVEGARDE = 'lpp3d_sauvegarde';
+const CLE_SAUVEGARDE = 'lpp3d_v2';  // v2 = M3 (invalide les sauvegardes M2)
 const VERSION_SCHEMA = 1;
 
 interface DonneesSauvegarde {

@@ -24,12 +24,12 @@ import {
   dialogueAviateur_Jour8,
 } from '../../dialogues/arbres/dialogueAviateur';
 import type { ArbreDialogue } from '../../dialogues/TypesDialogue';
+import type { ProgressionService } from '../../game/progression/ProgressionService';
 import { FenetreDialogue } from '../../ui/FenetreDialogue';
 import { FenetreJournal } from '../../ui/FenetreJournal';
 import { BoutonInteraction, libellePourType } from '../../ui/BoutonInteraction';
 import { CartePlanetes } from '../../ui/carte/CartePlanetes';
 import { LocalizationManager } from '../../localization/LocalizationManager';
-import type { ProgressionService } from '../../game/progression/ProgressionService';
 import { creerRampeAquarelle } from '../../shaders/RampeAquarelle';
 import { CONFIG } from '../../configuration/Config';
 
@@ -87,9 +87,7 @@ export class SceneDesert implements ISceneModule {
 
   async charger(services: ServicesJeu): Promise<void> {
     this.services = services;
-    // La progression est injectée par le Bootstrap après création
-    this.progression =
-      (services as ServicesJeu & { progression?: ProgressionService }).progression ?? null;
+    this.progression = services.progression;
 
     this.scene.background = creerFondDegrade(
       CONFIG.PALETTE_DESERT.cielHaut,
@@ -120,7 +118,7 @@ export class SceneDesert implements ISceneModule {
     this.fenetreJournal = new FenetreJournal(this.journal);
     this.boutonInteraction = new BoutonInteraction();
     this.cartePlanetes = new CartePlanetes(
-      this.progression ?? this.creerProgressionVide(),
+      services.progression,
       LocalizationManager,
     );
 
@@ -382,22 +380,4 @@ export class SceneDesert implements ISceneModule {
     plusProche?.action();
   }
 
-  /** Progression vide (si non injectée) pour les tests isolés. */
-  private creerProgressionVide() {
-    return {
-      estDebloque: () => false,
-      jourActuel: 1,
-      souvenirs: [] as string[],
-      remplirObjectif: () => undefined,
-      debloquerSouvenir: () => undefined,
-      abonner: () => () => undefined,
-      serialiser: () => ({
-        jourActuel: 1,
-        joursCompletes: [],
-        souvenirsDébloques: [],
-        objectifsRemplis: [],
-      }),
-      restaurer: () => undefined,
-    };
-  }
 }
