@@ -55,14 +55,23 @@ export class ChampGravitePlan implements ChampGravite {
   }
 }
 
+/** Relief d'une planète : direction unitaire → variation de rayon. */
+export type FonctionRelief = (direction: THREE.Vector3) => number;
+
 /**
  * Champ sphérique : le « bas » pointe vers le centre de la planète.
- * C'est lui qui permettra de faire le tour de B-612 à pied.
+ * C'est lui qui permet de faire le tour de B-612 à pied.
+ *
+ * Un relief optionnel module le rayon selon la direction : comme pour le
+ * désert, la MÊME fonction déforme le maillage visuel et définit le sol
+ * physique. Le « haut » reste radial (approximation parfaitement acceptable
+ * pour les faibles amplitudes d'un petit astéroïde).
  */
 export class ChampGraviteSpherique implements ChampGravite {
   constructor(
     private readonly centre: THREE.Vector3,
     private readonly rayon: number,
+    private readonly relief: FonctionRelief | null = null,
   ) {}
 
   obtenirHaut(position: THREE.Vector3, resultat: THREE.Vector3): THREE.Vector3 {
@@ -74,7 +83,8 @@ export class ChampGraviteSpherique implements ChampGravite {
 
   projeterAuSol(position: THREE.Vector3, resultat: THREE.Vector3): THREE.Vector3 {
     this.obtenirHaut(position, resultat);
-    return resultat.multiplyScalar(this.rayon).add(this.centre);
+    const rayonLocal = this.rayon + (this.relief ? this.relief(resultat) : 0);
+    return resultat.multiplyScalar(rayonLocal).add(this.centre);
   }
 
   contraindre(_position: THREE.Vector3): void {

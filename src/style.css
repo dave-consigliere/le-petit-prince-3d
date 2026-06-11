@@ -48,3 +48,166 @@ body {
   pointer-events: none;
   user-select: none;
 }
+
+/* =====================================================================
+   SYSTÈME DE DIALOGUE
+   ===================================================================== */
+#fenetre-dialogue {
+  position: fixed;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(620px, 92vw);
+  background: rgba(253, 248, 238, 0.94);
+  border: 1.5px solid rgba(180, 145, 90, 0.4);
+  border-radius: 14px;
+  padding: 20px 24px 14px;
+  box-shadow: 0 4px 28px rgba(80, 50, 20, 0.18);
+  font-family: Georgia, 'Times New Roman', serif;
+  z-index: 100;
+}
+
+.dialogue-texte {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #3a2810;
+  min-height: 2.4em;
+  margin-bottom: 12px;
+}
+
+.dialogue-choix {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.dialogue-option {
+  background: rgba(240, 225, 195, 0.7);
+  border: 1px solid rgba(160, 120, 70, 0.35);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: #3a2810;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.dialogue-option:hover, .dialogue-option:focus {
+  background: rgba(230, 210, 170, 0.9);
+  outline: none;
+}
+
+.dialogue-continuer {
+  display: block;
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid rgba(160, 120, 70, 0.4);
+  border-radius: 6px;
+  padding: 4px 14px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #7a5830;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+}
+.dialogue-continuer:hover { background: rgba(200, 170, 120, 0.25); }
+
+/* =====================================================================
+   JOURNAL DE VOYAGE
+   ===================================================================== */
+#fenetre-journal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(520px, 90vw);
+  max-height: 72vh;
+  overflow-y: auto;
+  background: rgba(253, 248, 238, 0.97);
+  border: 1.5px solid rgba(180, 145, 90, 0.35);
+  border-radius: 16px;
+  padding: 22px 26px;
+  box-shadow: 0 6px 36px rgba(80, 50, 20, 0.22);
+  font-family: Georgia, 'Times New Roman', serif;
+  z-index: 110;
+}
+
+.journal-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(160, 120, 70, 0.25);
+  padding-bottom: 10px;
+}
+
+.journal-entete h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #3a2810;
+  font-style: italic;
+}
+
+.journal-fermer {
+  background: transparent;
+  border: 1px solid rgba(160, 120, 70, 0.4);
+  border-radius: 6px;
+  padding: 3px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  color: #7a5830;
+  cursor: pointer;
+}
+.journal-fermer:hover { background: rgba(200, 170, 120, 0.25); }
+
+.journal-entree {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed rgba(160, 120, 70, 0.2);
+}
+.journal-entree:last-child { border-bottom: none; margin-bottom: 0; }
+
+.journal-entree h3 {
+  margin: 0 0 5px;
+  font-size: 14px;
+  color: #5a3a18;
+  font-style: italic;
+}
+
+.journal-entree p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #3a2810;
+}
+
+.journal-vide {
+  font-size: 13.5px;
+  color: #9a8060;
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+/* =====================================================================
+   BOUTON D'INTERACTION
+   ===================================================================== */
+#bouton-interaction {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 16px;
+  background: rgba(253, 248, 238, 0.82);
+  border: 1px solid rgba(160, 120, 70, 0.35);
+  border-radius: 20px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 13px;
+  color: #5a3a18;
+  pointer-events: none;
+  user-select: none;
+  z-index: 90;
+  transition: opacity 0.2s;
+}

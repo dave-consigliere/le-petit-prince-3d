@@ -9,6 +9,7 @@
  */
 export class InputManager {
   private readonly touches = new Set<string>();
+  private readonly pressions = new Set<string>();
   private readonly boutonsPointeur = new Set<number>();
   private readonly deltaPointeurInterne = { x: 0, y: 0 };
   private deltaMoletteInterne = 0;
@@ -18,6 +19,8 @@ export class InputManager {
 
   private readonly surToucheEnfoncee = (evenement: KeyboardEvent): void => {
     this.touches.add(evenement.code);
+    // Front montant uniquement : la répétition automatique est ignorée.
+    if (!evenement.repeat) this.pressions.add(evenement.code);
   };
 
   private readonly surToucheRelachee = (evenement: KeyboardEvent): void => {
@@ -49,6 +52,7 @@ export class InputManager {
 
   private readonly surPerteFocus = (): void => {
     this.touches.clear();
+    this.pressions.clear();
     this.boutonsPointeur.clear();
   };
 
@@ -102,6 +106,23 @@ export class InputManager {
     const delta = this.deltaMoletteInterne;
     this.deltaMoletteInterne = 0;
     return delta;
+  }
+
+  /**
+   * Consomme une pression unique de touche (vraie une seule fois par appui).
+   * Utilisé pour les actions ponctuelles : interagir, ouvrir le journal...
+   */
+  consommerPression(code: string): boolean {
+    if (this.pressions.has(code)) {
+      this.pressions.delete(code);
+      return true;
+    }
+    return false;
+  }
+
+  /** Vide les pressions non consommées (appelé en fin de pas de jeu). */
+  viderPressions(): void {
+    this.pressions.clear();
   }
 
   /** Détache les écouteurs (libération des ressources). */

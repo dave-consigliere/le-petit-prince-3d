@@ -19,18 +19,18 @@
 | Domaine               | Progression |
 | --------------------- | ----------: |
 | Préproduction         |       100 % |
-| Architecture          |        60 % |
-| Gameplay              |        10 % |
-| Environnements        |        15 % |
-| Personnages           |        10 % |
-| Interface utilisateur |         5 % |
-| Dialogues             |         0 % |
-| Audio                 |         0 % |
+| Architecture          |        70 % |
+| Gameplay              |        25 % |
+| Environnements        |        25 % |
+| Personnages           |        15 % |
+| Interface utilisateur |        30 % |
+| Dialogues             |        60 % |
+| Audio                 |        20 % |
 | Sauvegarde            |         0 % |
 | Optimisation          |        15 % |
-| Tests                 |        25 % |
-| Documentation         |        45 % |
-| **Projet global**     |    **19 %** |
+| Tests                 |        30 % |
+| Documentation         |        55 % |
+| **Projet global**     |    **32 %** |
 
 ---
 
