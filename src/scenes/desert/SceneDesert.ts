@@ -28,7 +28,6 @@ import type { ProgressionService } from '../../game/progression/ProgressionServi
 import { FenetreDialogue } from '../../ui/FenetreDialogue';
 import { FenetreJournal } from '../../ui/FenetreJournal';
 import { BoutonInteraction, libellePourType } from '../../ui/BoutonInteraction';
-import { CartePlanetes } from '../../ui/carte/CartePlanetes';
 import { LocalizationManager } from '../../localization/LocalizationManager';
 import { creerRampeAquarelle } from '../../shaders/RampeAquarelle';
 import { CONFIG } from '../../configuration/Config';
@@ -68,7 +67,6 @@ export class SceneDesert implements ISceneModule {
   private fenetreDialogue!: FenetreDialogue;
   private fenetreJournal!: FenetreJournal;
   private boutonInteraction!: BoutonInteraction;
-  private cartePlanetes!: CartePlanetes;
 
   private readonly points: PointInteraction[] = [];
   private readonly commande: CommandeDeplacement = {
@@ -82,7 +80,6 @@ export class SceneDesert implements ISceneModule {
   };
 
   private journalTouche = false;
-  private carteTouche = false;
   private interactionTouche = false;
 
   async charger(services: ServicesJeu): Promise<void> {
@@ -117,15 +114,7 @@ export class SceneDesert implements ISceneModule {
     this.fenetreDialogue = new FenetreDialogue(this.dialogueManager);
     this.fenetreJournal = new FenetreJournal(this.journal);
     this.boutonInteraction = new BoutonInteraction();
-    this.cartePlanetes = new CartePlanetes(
-      services.progression,
-      LocalizationManager,
-    );
 
-    // Voyage depuis la carte
-    this.cartePlanetes.surVoyage((id) => {
-      services.evenements.emettre('jeu:voyager', { destination: id });
-    });
   }
 
   demarrer(): void {
@@ -183,12 +172,6 @@ export class SceneDesert implements ISceneModule {
     }
     if (!jTouche) this.journalTouche = false;
 
-    const mTouche = entrees.estEnfoncee('KeyM');
-    if (mTouche && !this.carteTouche) {
-      this.carteTouche = true;
-      this.cartePlanetes.basculer();
-    }
-    if (!mTouche) this.carteTouche = false;
   }
 
   obtenirScene(): THREE.Scene {
@@ -199,7 +182,6 @@ export class SceneDesert implements ISceneModule {
     this.fenetreDialogue.liberer();
     this.fenetreJournal.liberer();
     this.boutonInteraction.liberer();
-    this.cartePlanetes.liberer();
     libererScene(this.scene);
   }
 

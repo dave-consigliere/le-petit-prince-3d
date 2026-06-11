@@ -17,6 +17,7 @@ import { SaveManager } from '../save/SaveManager';
 import { Journal } from '../game/Journal';
 import { CONFIG } from '../configuration/Config';
 import { LocalizationManager } from '../localization/LocalizationManager';
+import { CartePlanetes } from '../ui/carte/CartePlanetes';
 import { Logger } from '../utilities/Logger';
 
 export class Bootstrap {
@@ -48,6 +49,10 @@ export class Bootstrap {
       audio.volumeAmbiance = parametres.volumeAmbiance;
       audio.muet = parametres.muet;
     }
+
+    // La carte vit au niveau du Bootstrap : elle survit aux changements de scènes.
+    const carte = new CartePlanetes(progression, LocalizationManager);
+    carte.surVoyage((id) => void voyager(id));
 
     const rendu = new RendererService(conteneur);
     const scenes = new SceneManager(services);
@@ -89,9 +94,15 @@ export class Bootstrap {
     await voyager('desert');
 
     // Bascule via touche (outil de dev) ET via la carte des planètes
+    // Touche M : carte des planètes (niveau Bootstrap, survit aux scènes)
+    let carteTouche = false;
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Digit1') void voyager('desert');
       if (e.code === 'Digit2') void voyager('b612');
+      if (e.code === 'KeyM' && !carteTouche) { carteTouche = true; carte.basculer(); }
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'KeyM') carteTouche = false;
     });
 
     // Événement de voyage déclenché par la CartePlanetes
