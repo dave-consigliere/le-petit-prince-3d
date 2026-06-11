@@ -71,6 +71,11 @@ export class InputManager {
     return this.touches.has(code);
   }
 
+  /** Indique si l'une des touches (AZERTY + QWERTY) est enfoncée. */
+  estEnfonceeParmi(...codes: string[]): boolean {
+    return codes.some((c) => this.touches.has(c));
+  }
+
   /** Axe gauche/droite ∈ {-1, 0, 1} (Q/D, A/D physique, flèches). */
   axeHorizontal(): number {
     const droite = this.estEnfoncee('KeyD') || this.estEnfoncee('ArrowRight') ? 1 : 0;

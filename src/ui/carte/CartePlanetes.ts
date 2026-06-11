@@ -106,6 +106,19 @@ export class CartePlanetes {
     else this.ouvrir();
   }
 
+  /** Ouvre la carte (appelable depuis l'extérieur). */
+  ouvrir(): void {
+    this.rafraichir();
+    this.racine.hidden = false;
+    this.ouverte = true;
+  }
+
+  /** Ferme la carte (appelable depuis l'extérieur). */
+  fermer(): void {
+    this.racine.hidden = true;
+    this.ouverte = false;
+  }
+
   get estOuverte(): boolean {
     return this.ouverte;
   }
@@ -116,18 +129,8 @@ export class CartePlanetes {
 
   // ---------------------------------------------------------------- privé --
 
-  private ouvrir(): void {
-    this.rafraichir();
-    this.racine.hidden = false;
-    this.ouverte = true;
-  }
 
-  private fermer(): void {
-    this.racine.hidden = true;
-    this.ouverte = false;
-  }
-
-  private rafraichir(): void {
+  rafraichir(): void {
     const grille = document.getElementById('carte-grille');
     if (!grille) return;
     grille.innerHTML = '';

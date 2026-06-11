@@ -94,15 +94,17 @@ export class Bootstrap {
     await voyager('desert');
 
     // Bascule via touche (outil de dev) ET via la carte des planètes
-    // Touche M : carte des planètes (niveau Bootstrap, survit aux scènes)
-    let carteTouche = false;
+    // Touches de développement (bascule scènes)
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Digit1') void voyager('desert');
       if (e.code === 'Digit2') void voyager('b612');
-      if (e.code === 'KeyM' && !carteTouche) { carteTouche = true; carte.basculer(); }
     });
-    window.addEventListener('keyup', (e) => {
-      if (e.code === 'KeyM') carteTouche = false;
+
+    // Touche M : écoutée sur document (indépendante du focus du canvas).
+    document.addEventListener('keydown', (e) => {
+      // KeyM = position physique M (QWERTY), Semicolon = même touche en AZERTY
+      if ((e.code !== 'KeyM' && e.code !== 'Semicolon') || e.repeat) return;
+      carte.basculer();
     });
 
     // Événement de voyage déclenché par la CartePlanetes
