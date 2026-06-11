@@ -129,7 +129,6 @@ export class CartePlanetes {
 
   // ---------------------------------------------------------------- privé --
 
-
   rafraichir(): void {
     const grille = document.getElementById('carte-grille');
     if (!grille) return;

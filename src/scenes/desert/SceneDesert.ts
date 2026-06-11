@@ -114,7 +114,6 @@ export class SceneDesert implements ISceneModule {
     this.fenetreDialogue = new FenetreDialogue(this.dialogueManager);
     this.fenetreJournal = new FenetreJournal(this.journal);
     this.boutonInteraction = new BoutonInteraction();
-
   }
 
   demarrer(): void {
@@ -171,7 +170,6 @@ export class SceneDesert implements ISceneModule {
       this.fenetreJournal.basculer();
     }
     if (!jTouche) this.journalTouche = false;
-
   }
 
   obtenirScene(): THREE.Scene {
@@ -361,5 +359,4 @@ export class SceneDesert implements ISceneModule {
     }
     plusProche?.action();
   }
-
 }

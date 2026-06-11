@@ -12,6 +12,12 @@ import { SceneManager } from '../scenes/SceneManager';
 import type { ISceneModule } from '../scenes/ISceneModule';
 import { SceneDesert } from '../scenes/desert/SceneDesert';
 import { SceneB612 } from '../scenes/b612/SceneB612';
+import { SceneRoi } from '../scenes/planetes/roi/SceneRoi';
+import { SceneVaniteux } from '../scenes/planetes/vaniteux/SceneVaniteux';
+import { SceneBuveur } from '../scenes/planetes/buveur/SceneBuveur';
+import { SceneBusinessman } from '../scenes/planetes/businessman/SceneBusinessman';
+import { SceneAllumeur } from '../scenes/planetes/allumeur/SceneAllumeur';
+import { SceneGeographe } from '../scenes/planetes/geographe/SceneGeographe';
 import { ProgressionService } from '../game/progression/ProgressionService';
 import { SaveManager } from '../save/SaveManager';
 import { Journal } from '../game/Journal';
@@ -70,6 +76,12 @@ export class Bootstrap {
     const fabriques: Record<string, () => ISceneModule> = {
       desert: () => new SceneDesert(),
       b612: () => new SceneB612(),
+      'planete-roi': () => new SceneRoi(),
+      'planete-vaniteux': () => new SceneVaniteux(),
+      'planete-buveur': () => new SceneBuveur(),
+      'planete-businessman': () => new SceneBusinessman(),
+      'planete-allumeur': () => new SceneAllumeur(),
+      'planete-geographe': () => new SceneGeographe(),
     };
 
     let chargementEnCours = false;

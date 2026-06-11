@@ -59,6 +59,34 @@ export const FR = {
       texte:
         'Quand on est très triste, on aime les couchers de soleil. Il suffit de tirer sa chaise de quelques pas.',
     },
+    planete_roi: {
+      titre: 'Le Roi',
+      texte: `Il règne sur tout — les étoiles lui obéissent. Mais il n'a pas de sujets. Un roi sans personne est-il encore un roi ?`,
+    },
+    planete_vaniteux: {
+      titre: 'Le Vaniteux',
+      texte: `Il ne veut qu'être admiré. Applaudir, c'est sa seule conversation. Les grandes personnes sont décidément bien bizarres.`,
+    },
+    planete_buveur: {
+      titre: 'Le Buveur',
+      texte: `Il boit pour oublier sa honte de boire. Cette visite m'a plongé dans une grande mélancolie.`,
+    },
+    planete_businessman: {
+      titre: 'Le Businessman',
+      texte: `Il possède les étoiles — il les compte, les recompte, les place en banque. Mais elles ne l'éclairent pas pour autant.`,
+    },
+    planete_allumeur: {
+      titre: `L'Allumeur de réverbères`,
+      texte: `Il est fidèle à la consigne, même absurde. C'est le seul qui ne pense pas qu'à lui-même. J'aurais pu en faire mon ami.`,
+    },
+    planete_geographe: {
+      titre: 'Le Géographe',
+      texte: `Il m'a dit que ma fleur est éphémère. Ce mot m'a traversé comme une lame. Je l'ai laissée seule sur ma planète.`,
+    },
+    conseil_terre: {
+      titre: 'Vers la Terre',
+      texte: `Le géographe m'a conseillé la Terre. Elle a bonne réputation, dit-il. J'y suis allé, songeant à ma fleur.`,
+    },
     desert_rencontre: {
       titre: `La rencontre`,
       texte: `Il est apparu au lever du jour, dans ce désert où je me croyais seul. Dessine-moi un mouton, a-t-il dit. Simplement.`,

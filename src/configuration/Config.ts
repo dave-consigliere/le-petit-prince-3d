@@ -84,6 +84,55 @@ export const CONFIG = {
     lumiereSol: 0x6b5a8a,
   },
 
+  /** Palettes des six planètes visitées. */
+  PALETTES_PLANETES: {
+    roi: {
+      cielHaut: '#3a1a5a',
+      cielBas: '#7a3a8a',
+      sol: 0x9b7ebf,
+      lumiere: 0xf0d8ff,
+      ambiance: 0x7a5a9a,
+    },
+    vaniteux: {
+      cielHaut: '#4a3a1a',
+      cielBas: '#c8a830',
+      sol: 0xe8c850,
+      lumiere: 0xfff8d0,
+      ambiance: 0xb8a040,
+    },
+    buveur: {
+      cielHaut: '#1a2a3a',
+      cielBas: '#3a4a5a',
+      sol: 0x7a8a9a,
+      lumiere: 0xc0d0e0,
+      ambiance: 0x6a7a8a,
+    },
+    businessman: {
+      cielHaut: '#2a2a2a',
+      cielBas: '#4a4a4a',
+      sol: 0x8a8a7a,
+      lumiere: 0xd0d0c0,
+      ambiance: 0x6a6a5a,
+    },
+    allumeur: {
+      cielHaut: '#0a0a1a',
+      cielBas: '#1a1a3a',
+      sol: 0x5a5a8a,
+      lumiere: 0xffe8a0,
+      ambiance: 0x3a3a6a,
+    },
+    geographe: {
+      cielHaut: '#2a1a0a',
+      cielBas: '#6a4a2a',
+      sol: 0xc8a870,
+      lumiere: 0xfff0d0,
+      ambiance: 0x9a7a5a,
+    },
+  } as const,
+
+  /** Rayon commun des petites planètes. */
+  RAYON_PLANETE: 7,
+
   /** Intensités du post-traitement « papier aquarelle ». */
   POST_TRAITEMENT: {
     grain: 0.045,
