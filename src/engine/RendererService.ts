@@ -53,7 +53,11 @@ export class RendererService {
     this.cibleRendu = new THREE.WebGLRenderTarget(
       Math.round(window.innerWidth * ratioPixels),
       Math.round(window.innerHeight * ratioPixels),
-      { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter },
+      {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        colorSpace: THREE.LinearSRGBColorSpace,
+      },
     );
 
     // Quad plein écran avec le shader grain + vignette intégré.
@@ -90,7 +94,7 @@ export class RendererService {
           float d = distance(vUv, vec2(0.5));
           c.rgb *= 1.0 - smoothstep(0.42, 0.88, d) * uVignette;
 
-          gl_FragColor = LinearTosRGB(c);
+          gl_FragColor = c;
         }
       `,
       depthWrite: false,
@@ -99,6 +103,11 @@ export class RendererService {
     this.quadPost = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.materialPost);
     this.quadPost.frustumCulled = false;
     this.scenePost.add(this.quadPost);
+
+    // Clear initial : évite une texture noire au premier frame avant le rendu.
+    this.renderer.setRenderTarget(this.cibleRendu);
+    this.renderer.clear();
+    this.renderer.setRenderTarget(null);
 
     Logger.info(`Rendu initialisé — pixelRatio : ${ratioPixels.toFixed(2)}`);
   }
