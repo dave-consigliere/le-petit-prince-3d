@@ -128,7 +128,7 @@ export const FR = {
     carte: 'Carte des planètes',
     sauvegarder: 'Sauvegarder',
     nouvellePartie: 'Nouvelle partie',
-    aide: 'ZQSD · Flèches : marcher  ·  Maj : courir  ·  E : interagir  ·  J : journal  ·  M : carte  ·  Clic gauche : orbiter  ·  Molette : zoom',
+    aide: 'ZQSD · Flèches : marcher  ·  Maj : courir  ·  E : interagir  ·  J : journal  ·  M : carte  ·  1-8 : scènes  ·  Clic gauche : orbiter  ·  Molette : zoom',
   },
 
   lieux: {
