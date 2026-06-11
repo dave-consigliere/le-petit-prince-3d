@@ -6,8 +6,10 @@ export const CONFIG = {
   /** Fréquence des mises à jour logiques, en Hz (boucle à pas fixe). */
   FREQUENCE_MAJ_FIXE: 60,
 
-  /** Ratio de pixels maximal, afin de limiter la charge GPU sur écrans denses. */
+  /** Ratio de pixels maximal sur GPU dédié. */
   RATIO_PIXELS_MAX: 2,
+  /** Ratio de pixels sur GPU intégré (écrans haute densité détectés). */
+  RATIO_PIXELS_INTEGRE: 1.5,
 
   /** Réglages du joueur (vitesses en m/s, amortissements en 1/s). */
   JOUEUR: {

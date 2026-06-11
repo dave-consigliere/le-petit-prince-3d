@@ -81,6 +81,7 @@ export class SceneDesert implements ISceneModule {
     if (this.controleur && this.cameraOrbitale) {
       this.cameraOrbitale.reinitialiser(this.controleur.position);
     }
+    this.services?.evenements.emettre('audio:musique', { piste: 'desert', fondu: 2 });
   }
 
   mettreAJour(dtFixe: number): void {

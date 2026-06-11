@@ -41,9 +41,10 @@ export class Bootstrap {
     const rendu = new RendererService(conteneur);
     const scenes = new SceneManager(services);
 
-    // Déblocage audio au premier geste utilisateur (politique navigateurs)
+    // Déblocage audio au premier geste utilisateur (politique navigateurs).
+    // debloquer() est async : la piste en attente est jouée après le resume().
     const debloquerAudio = () => {
-      audio.debloquer();
+      void audio.debloquer();
       window.removeEventListener('pointerdown', debloquerAudio);
       window.removeEventListener('keydown', debloquerAudio);
     };
@@ -90,7 +91,8 @@ export class Bootstrap {
         scenes.mettreAJour(services.temps.delta);
       },
       (_interp, dt) => {
-        rendu.rendre(services.temps.tempsTotal);
+        const sc = scenes.scene;
+        if (sc) rendu.rendre(services.temps.tempsTotal, sc, services.camera.camera);
         imgs++;
         dur += dt;
         if (dur >= 0.5) {
