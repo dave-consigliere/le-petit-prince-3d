@@ -87,6 +87,42 @@ export const FR = {
       titre: 'Vers la Terre',
       texte: `Le géographe m'a conseillé la Terre. Elle a bonne réputation, dit-il. J'y suis allé, songeant à ma fleur.`,
     },
+    terre_arrivee: {
+      titre: `L'arrivée sur Terre`,
+      texte: `J'ai cru d'abord m'être trompé de planète. Pas un homme. Juste le sable, le vent, et au-dessus, les étoiles.`,
+    },
+    terre_serpent: {
+      titre: 'Le Serpent',
+      texte: `Il est apparu sans bruit, anneau couleur de lune dans le sable. Il parle par énigmes. Il dit pouvoir me ramener un jour, si je regrette trop ma planète.`,
+    },
+    terre_echo: {
+      titre: `L'écho de la montagne`,
+      texte: `J'ai dit « bonjour » et la montagne a dit « bonjour bonjour bonjour ». Les hommes manquent d'imagination — ils répètent ce qu'on leur dit.`,
+    },
+    terre_jardin: {
+      titre: 'Cinq mille roses',
+      texte: `Je me croyais riche d'une fleur unique. Et je ne possède qu'une rose ordinaire. Ça ne fait pas de moi un bien grand prince.`,
+    },
+    terre_renard_curieux: {
+      titre: `Le Renard m'a vu`,
+      texte: `Il est sous le pommier. Il m'a vu. Il dit qu'il ne peut pas jouer — il n'est pas apprivoisé.`,
+    },
+    terre_renard_attentif: {
+      titre: `Qu'est-ce que signifie « apprivoiser » ?`,
+      texte: `Ça veut dire « créer des liens », m'a-t-il dit. Pour l'instant, je ne suis qu'un petit garçon parmi cent mille autres.`,
+    },
+    terre_renard_familier: {
+      titre: 'Il faut être patient',
+      texte: `Il faut être très patient, dit-il. S'asseoir d'abord un peu loin. Et chaque jour, s'asseoir un peu plus près. Le langage est source de malentendus.`,
+    },
+    terre_renard_ami: {
+      titre: 'Le secret du Renard',
+      texte: `On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux. C'est le temps que tu as perdu pour ta rose qui fait ta rose si importante.`,
+    },
+    terre_ble: {
+      titre: 'Les champs de blé',
+      texte: `Je ne mange pas de pain. Le blé pour moi est inutile. Mais tu as des cheveux couleur d'or — alors le blé me fera souvenir de toi.`,
+    },
     desert_rencontre: {
       titre: `La rencontre`,
       texte: `Il est apparu au lever du jour, dans ce désert où je me croyais seul. Dessine-moi un mouton, a-t-il dit. Simplement.`,
@@ -128,7 +164,7 @@ export const FR = {
     carte: 'Carte des planètes',
     sauvegarder: 'Sauvegarder',
     nouvellePartie: 'Nouvelle partie',
-    aide: 'ZQSD · Flèches : marcher  ·  Maj : courir  ·  E : interagir  ·  J : journal  ·  M : carte  ·  1-8 : scènes  ·  Clic gauche : orbiter  ·  Molette : zoom',
+    aide: 'ZQSD · Flèches : marcher  ·  Maj : courir  ·  E : interagir  ·  J : journal  ·  M : carte  ·  1-9 : scènes  ·  Clic gauche : orbiter  ·  Molette : zoom',
   },
 
   lieux: {

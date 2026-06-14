@@ -33,4 +33,7 @@ export type EvenementsJeu = {
 
   /** Le joueur demande un voyage vers une autre scène. */
   'jeu:voyager': { destination: string };
+
+  /** Un palier d'apprivoisement du Renard a été franchi. */
+  'apprivoisement:palier': { etat: string; idEntreeJournal: string };
 };

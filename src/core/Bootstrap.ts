@@ -18,6 +18,7 @@ import { SceneBuveur } from '../scenes/planetes/buveur/SceneBuveur';
 import { SceneBusinessman } from '../scenes/planetes/businessman/SceneBusinessman';
 import { SceneAllumeur } from '../scenes/planetes/allumeur/SceneAllumeur';
 import { SceneGeographe } from '../scenes/planetes/geographe/SceneGeographe';
+import { SceneTerre } from '../scenes/terre/SceneTerre';
 import { ProgressionService } from '../game/progression/ProgressionService';
 import { SaveManager } from '../save/SaveManager';
 import { Journal } from '../game/Journal';
@@ -82,6 +83,7 @@ export class Bootstrap {
       'planete-businessman': () => new SceneBusinessman(),
       'planete-allumeur': () => new SceneAllumeur(),
       'planete-geographe': () => new SceneGeographe(),
+      terre: () => new SceneTerre(),
     };
 
     let chargementEnCours = false;
@@ -116,6 +118,7 @@ export class Bootstrap {
       if (e.code === 'Digit6') void voyager('planete-businessman');
       if (e.code === 'Digit7') void voyager('planete-allumeur');
       if (e.code === 'Digit8') void voyager('planete-geographe');
+      if (e.code === 'Digit9') void voyager('terre');
     });
 
     // Touche M : écoutée sur document (indépendante du focus du canvas).

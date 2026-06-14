@@ -133,6 +133,28 @@ export const CONFIG = {
   /** Rayon commun des petites planètes. */
   RAYON_PLANETE: 7,
 
+  /** Palette de la Terre — désert africain au coucher de soleil. */
+  PALETTE_TERRE: {
+    cielHaut: '#d49560',
+    cielBas: '#f0c478',
+    sable: 0xe8b478,
+    rocher: 0xa87858,
+    blé: 0xe8c860,
+    bléSombre: 0xb89540,
+    brume: 0xf4d8a0,
+    lumiereChaude: 0xfff0c8,
+    lumiereCiel: 0xffb878,
+    lumiereSol: 0xe09058,
+    rose: 0xd5485e,
+    feuilleRose: 0x6a9a72,
+    renard: 0xd47830,
+    renardVentre: 0xf0d8a8,
+    serpent: 0xc8b048,
+    pommier: 0x4a6a4a,
+    montagne: 0x8a6a4a,
+    montagnePointe: 0xc8b890,
+  },
+
   /** Intensités du post-traitement « papier aquarelle ». */
   POST_TRAITEMENT: {
     grain: 0.045,
