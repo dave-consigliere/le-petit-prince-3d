@@ -252,7 +252,7 @@ export class SceneTerre implements ISceneModule {
   }
 
   private construireTerrain(): void {
-    const geo = new THREE.PlaneGeometry(420, 420, 110, 110);
+    const geo = new THREE.PlaneGeometry(420, 420, 70, 70);
     geo.rotateX(-Math.PI / 2);
     const pos = geo.attributes['position'];
     if (pos) {
@@ -305,7 +305,7 @@ export class SceneTerre implements ISceneModule {
   }
 
   private placerJardinRoses(): void {
-    const jardin = new JardinRoses(800, 12);
+    const jardin = new JardinRoses(500, 10);
     const x = 70,
       z = -20;
     const y = this.hauteurTerrain(x, z);
@@ -329,7 +329,7 @@ export class SceneTerre implements ISceneModule {
     const py = this.hauteurTerrain(px, pz);
     this.pommier.groupe.position.set(px, py, pz);
     this.scene.add(this.pommier.groupe);
-    this.obstacles.ajouter(this.pommier.groupe.position, 0.5); // tronc
+    this.obstacles.ajouter(this.pommier.groupe.position, 0.8); // tronc
 
     this.renard = new AvatarRenard();
     // Le Renard est à 2m du pommier (sous le pommier, comme dans le livre)
@@ -358,7 +358,7 @@ export class SceneTerre implements ISceneModule {
   }
 
   private placerChampDeBle(): void {
-    this.champBle = new ChampDeBle(2000, 16);
+    this.champBle = new ChampDeBle(700, 14);
     const x = 40,
       z = 20;
     const y = this.hauteurTerrain(x, z);

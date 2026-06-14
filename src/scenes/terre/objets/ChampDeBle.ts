@@ -60,7 +60,9 @@ export class ChampDeBle {
     });
 
     this.mesh = new THREE.InstancedMesh(geo, this.materiau, nombreTiges);
-    this.mesh.frustumCulled = false;
+    // Bounding sphere pour le frustum culling (instancing avec ondulation vent)
+    geo.computeBoundingSphere();
+    if (geo.boundingSphere) geo.boundingSphere.radius = rayon + 1;
 
     const matrice = new THREE.Matrix4();
     const position = new THREE.Vector3();
