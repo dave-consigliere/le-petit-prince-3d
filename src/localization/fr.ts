@@ -123,6 +123,22 @@ export const FR = {
       titre: 'Les champs de blé',
       texte: `Je ne mange pas de pain. Le blé pour moi est inutile. Mais tu as des cheveux couleur d'or — alors le blé me fera souvenir de toi.`,
     },
+    finale_mur: {
+      titre: 'Le mur de pierre',
+      texte: `J'ai compris en m'approchant : il parlait au serpent. Cette nuit, ça ferait un an depuis sa chute. Son étoile se trouverait juste au-dessus.`,
+    },
+    finale_etoile: {
+      titre: 'Mon étoile',
+      texte: `Tu auras des étoiles comme personne n'en a. Quand tu regarderas le ciel, la nuit, ce sera comme si toutes les étoiles riaient.`,
+    },
+    finale_depart: {
+      titre: `L'éclair jaune`,
+      texte: `Il a fait un pas. Il est tombé doucement, comme tombe un arbre. Ça n'a même pas fait de bruit, à cause du sable.`,
+    },
+    epilogue: {
+      titre: 'Six ans plus tard',
+      texte: `Je n'ai jamais raconté cette histoire. Je sais bien qu'il est revenu à sa planète — au matin, je n'ai pas retrouvé son corps. Ce n'était pas un corps tellement lourd.`,
+    },
     desert_rencontre: {
       titre: `La rencontre`,
       texte: `Il est apparu au lever du jour, dans ce désert où je me croyais seul. Dessine-moi un mouton, a-t-il dit. Simplement.`,
@@ -154,7 +170,6 @@ export const FR = {
   ui: {
     journal: 'Journal',
     fermer: 'Fermer',
-    continuer: 'Continuer',
     interagir: 'Interagir',
     observer: 'Observer',
     arroser: 'Arroser la rose',
@@ -163,8 +178,24 @@ export const FR = {
     mettreGlobe: 'Mettre le globe',
     carte: 'Carte des planètes',
     sauvegarder: 'Sauvegarder',
+    titreJeu: 'Le Petit Prince',
+    sousTitre: 'Une aventure interactive',
     nouvellePartie: 'Nouvelle partie',
-    aide: 'ZQSD · Flèches : marcher  ·  Maj : courir  ·  E : interagir  ·  J : journal  ·  M : carte  ·  1-9 : scènes  ·  Clic gauche : orbiter  ·  Molette : zoom',
+    continuer: 'Continuer',
+    parametres: 'Paramètres',
+    quitter: 'Quitter',
+    reprendre: 'Reprendre',
+    menuPrincipal: 'Menu principal',
+    volumeMusique: 'Volume musique',
+    volumeAmbiance: 'Volume ambiance',
+    tailleTexte: 'Taille du texte',
+    contrasteEleve: 'Contraste élevé',
+    sousTitresActifs: 'Sous-titres',
+    muet: 'Couper le son',
+    retour: 'Retour',
+    chargement: 'Chargement…',
+    pause: 'Pause',
+    aide: 'ZQSD · Flèches : marcher  ·  Maj : courir  ·  E : interagir  ·  J : journal  ·  M : carte  ·  Échap : pause  ·  Clic gauche : orbiter  ·  Molette : zoom',
   },
 
   lieux: {

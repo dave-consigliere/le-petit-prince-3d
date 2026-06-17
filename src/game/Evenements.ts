@@ -36,4 +36,19 @@ export type EvenementsJeu = {
 
   /** Un palier d'apprivoisement du Renard a été franchi. */
   'apprivoisement:palier': { etat: string; idEntreeJournal: string };
+
+  /** Changement d'état global du jeu. */
+  'etat:change': { ancien: string; nouveau: string };
+
+  /** Demande de transition d'état (action du joueur). */
+  'etat:demande': { vers: string };
+
+  /** Démarrage d'un chargement de scène (pour afficher l'écran). */
+  'chargement:debut': { destination: string };
+
+  /** Fin de chargement de scène. */
+  'chargement:fin': { destination: string };
+
+  /** Demande de fin de jeu (déclenchée au mur de pierre). */
+  'finale:declencher': Record<string, never>;
 };

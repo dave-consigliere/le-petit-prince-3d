@@ -19,24 +19,37 @@ import { SceneBusinessman } from '../scenes/planetes/businessman/SceneBusinessma
 import { SceneAllumeur } from '../scenes/planetes/allumeur/SceneAllumeur';
 import { SceneGeographe } from '../scenes/planetes/geographe/SceneGeographe';
 import { SceneTerre } from '../scenes/terre/SceneTerre';
+import { SceneFinale } from '../scenes/finale/SceneFinale';
 import { ProgressionService } from '../game/progression/ProgressionService';
 import { SaveManager } from '../save/SaveManager';
 import { Journal } from '../game/Journal';
+import { PreferencesService } from '../game/preferences/PreferencesService';
 import { CONFIG } from '../configuration/Config';
 import { LocalizationManager } from '../localization/LocalizationManager';
 import { CartePlanetes } from '../ui/carte/CartePlanetes';
+import { MenuPrincipal } from '../ui/menus/MenuPrincipal';
+import { MenuPause } from '../ui/menus/MenuPause';
+import { MenuParametres } from '../ui/menus/MenuParametres';
+import { EcranChargement } from '../ui/menus/EcranChargement';
 import { Logger } from '../utilities/Logger';
 
+/**
+ * Bootstrap M6 — intègre menu principal, pause, paramètres,
+ * écran de chargement, scène finale et progression narrative complète.
+ */
 export class Bootstrap {
   static async demarrer(): Promise<void> {
     const conteneur = document.getElementById('application');
     if (!conteneur) throw new Error('Conteneur #application introuvable.');
 
+    // -- Services -----------------------------------------------------
     const evenements = new EventBus<EvenementsJeu>();
     const audio = new AudioManager(evenements);
     const progression = new ProgressionService(evenements);
     const journal = new Journal(evenements);
     const save = new SaveManager(progression, journal);
+    const preferences = new PreferencesService();
+    preferences.charger();
 
     const services: ServicesJeu = {
       evenements,
@@ -49,20 +62,26 @@ export class Bootstrap {
       save,
     };
 
-    // Charger la sauvegarde existante
-    const parametres = save.charger();
-    if (parametres) {
-      audio.volumeMusique = parametres.volumeMusique;
-      audio.volumeAmbiance = parametres.volumeAmbiance;
-      audio.muet = parametres.muet;
-    }
+    // Appliquer les préférences à l'audio
+    const appliquerPrefAudio = () => {
+      const p = preferences.preferences;
+      audio.volumeMusique = p.volumeMusique;
+      audio.volumeAmbiance = p.volumeAmbiance;
+      audio.muet = p.muet;
+    };
+    appliquerPrefAudio();
+    preferences.abonner(appliquerPrefAudio);
 
+    // -- Rendu et scènes ---------------------------------------------
     const rendu = new RendererService(conteneur);
     const scenes = new SceneManager(services);
 
-    // La carte vit ici : elle survit aux changements de scènes ET voit la progression restaurée.
+    // -- UI globale ---------------------------------------------------
     const carte = new CartePlanetes(progression, LocalizationManager);
-    carte.surVoyage((id) => void voyager(id));
+    const ecranChargement = new EcranChargement();
+    const menuPrincipal = new MenuPrincipal(save);
+    const menuPause = new MenuPause();
+    const menuParametres = new MenuParametres(preferences);
 
     // Déblocage audio
     const debloquerAudio = () => {
@@ -73,7 +92,7 @@ export class Bootstrap {
     window.addEventListener('pointerdown', debloquerAudio);
     window.addEventListener('keydown', debloquerAudio);
 
-    // Fabrique de scènes : desktop → id de scène
+    // -- Voyage entre scènes -----------------------------------------
     const fabriques: Record<string, () => ISceneModule> = {
       desert: () => new SceneDesert(),
       b612: () => new SceneB612(),
@@ -84,70 +103,130 @@ export class Bootstrap {
       'planete-allumeur': () => new SceneAllumeur(),
       'planete-geographe': () => new SceneGeographe(),
       terre: () => new SceneTerre(),
+      finale: () => {
+        const f = new SceneFinale();
+        f.surTerminer(() => {
+          // Fin du jeu : retour menu principal après l'épilogue
+          menuPause.fermer();
+          partieEnCours = false;
+          menuPrincipal.ouvrir();
+        });
+        return f;
+      },
     };
 
     let chargementEnCours = false;
+    let partieEnCours = false;
+
     const voyager = async (destination: string): Promise<void> => {
       if (chargementEnCours) return;
       chargementEnCours = true;
+      ecranChargement.afficher();
       try {
         const fabrique = fabriques[destination];
         if (!fabrique) {
           Logger.avertissement(`Scène inconnue : ${destination}`);
           return;
         }
+        // Petite pause pour que le fondu soit visible
+        await new Promise((r) => setTimeout(r, 600));
         await scenes.chargerScene(fabrique());
         const sc = scenes.scene;
         if (sc) rendu.definirPipeline(sc, services.camera.camera);
       } finally {
+        ecranChargement.masquer();
         chargementEnCours = false;
       }
     };
 
-    // Démarrage sur le désert
-    await voyager('desert');
+    carte.surVoyage((id) => void voyager(id));
 
-    // Bascule via touche (outil de dev) ET via la carte des planètes
-    // Touches de développement (bascule scènes — retiré en M6)
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Digit1') void voyager('desert');
-      if (e.code === 'Digit2') void voyager('b612');
-      if (e.code === 'Digit3') void voyager('planete-roi');
-      if (e.code === 'Digit4') void voyager('planete-vaniteux');
-      if (e.code === 'Digit5') void voyager('planete-buveur');
-      if (e.code === 'Digit6') void voyager('planete-businessman');
-      if (e.code === 'Digit7') void voyager('planete-allumeur');
-      if (e.code === 'Digit8') void voyager('planete-geographe');
-      if (e.code === 'Digit9') void voyager('terre');
+    // -- Logique de progression : Aviateur déclenche la finale -------
+    evenements.abonner('progression:jour', ({ jour }) => {
+      if (jour >= 8) {
+        // Le jour 8 est le départ — le joueur peut désormais voyager vers la finale
+        progression.debloquerSouvenir('finale');
+      }
     });
 
-    // Touche M : écoutée sur document (indépendante du focus du canvas).
-    document.addEventListener('keydown', (e) => {
-      // KeyM = position physique M (QWERTY), Semicolon = même touche en AZERTY
-      if ((e.code !== 'KeyM' && e.code !== 'Semicolon') || e.repeat) return;
-      carte.basculer();
-    });
-
-    // Événement de voyage déclenché par la CartePlanetes
-    evenements.abonner('jeu:voyager', ({ destination }) => {
-      void voyager(destination);
-    });
-
-    // Sauvegarde automatique toutes les 60 secondes
-    setInterval(() => {
-      save.sauvegarder({
-        volumeMusique: 0.35,
-        volumeAmbiance: 0.12,
-        muet: audio.muet,
+    // -- Menus : connexions logiques ---------------------------------
+    const lancerNouvellePartie = async (): Promise<void> => {
+      save.effacer();
+      progression.restaurer({
+        jourActuel: 1,
+        joursCompletes: [],
+        souvenirsDébloques: ['b612'],
+        objectifsRemplis: [],
       });
-    }, 60_000);
+      // Vider le journal (réinitialisation propre)
+      menuPrincipal.fermer();
+      partieEnCours = true;
+      await voyager('desert');
+    };
 
-    // Sauvegarde au changement de scène
-    evenements.abonner('scene:chargee', () => {
-      save.sauvegarder({ volumeMusique: 0.35, volumeAmbiance: 0.12, muet: audio.muet });
+    const continuerPartie = async (): Promise<void> => {
+      const params = save.charger();
+      if (params) {
+        audio.volumeMusique = params.volumeMusique;
+        audio.volumeAmbiance = params.volumeAmbiance;
+        audio.muet = params.muet;
+      }
+      menuPrincipal.fermer();
+      partieEnCours = true;
+      await voyager('desert');
+    };
+
+    menuPrincipal.surNouvellePartie(() => void lancerNouvellePartie());
+    menuPrincipal.surContinuer(() => void continuerPartie());
+    menuPrincipal.surParametres(() => {
+      menuPrincipal.fermer();
+      menuParametres.ouvrir();
+      menuParametres.surRetour(() => {
+        menuParametres.fermer();
+        menuPrincipal.ouvrir();
+      });
     });
 
-    // HUD
+    menuPause.surReprendre(() => menuPause.fermer());
+    menuPause.surParametres(() => {
+      menuPause.fermer();
+      menuParametres.ouvrir();
+      menuParametres.surRetour(() => {
+        menuParametres.fermer();
+        menuPause.ouvrir();
+      });
+    });
+    menuPause.surMenuPrincipal(() => {
+      // Sauvegarder puis retour
+      save.sauvegarder(preferences.preferences);
+      menuPause.fermer();
+      partieEnCours = false;
+      menuPrincipal.ouvrir();
+    });
+
+    // -- Touches globales --------------------------------------------
+    document.addEventListener('keydown', (e) => {
+      if (e.repeat) return;
+      // Carte (M ou Semicolon en AZERTY) — uniquement en partie
+      if ((e.code === 'KeyM' || e.code === 'Semicolon') && partieEnCours && !menuPause.estOuvert) {
+        carte.basculer();
+      }
+      // Pause (Échap) — uniquement en partie, et bascule
+      if (e.code === 'Escape' && partieEnCours) {
+        if (menuPause.estOuvert) menuPause.fermer();
+        else if (!carte['ouverte' as never]) menuPause.ouvrir();
+      }
+    });
+
+    // -- Sauvegarde auto ---------------------------------------------
+    setInterval(() => {
+      if (partieEnCours) save.sauvegarder(preferences.preferences);
+    }, 60_000);
+    evenements.abonner('scene:chargee', () => {
+      if (partieEnCours) save.sauvegarder(preferences.preferences);
+    });
+
+    // -- HUD ---------------------------------------------------------
     const hud = document.createElement('div');
     hud.id = 'hud-fps';
     document.body.appendChild(hud);
@@ -156,11 +235,14 @@ export class Bootstrap {
     aide.textContent = LocalizationManager.ui.aide;
     document.body.appendChild(aide);
 
+    // -- Boucle ------------------------------------------------------
     let imgs = 0,
       dur = 0;
     const boucle = new GameLoop(
       CONFIG.FREQUENCE_MAJ_FIXE,
       (dtFixe) => {
+        // Pause si menus ouverts (et qu'on est en partie)
+        if (partieEnCours && (menuPause.estOuvert || ecranChargement.estAffiche)) return;
         services.temps.avancer(dtFixe);
         scenes.mettreAJour(services.temps.delta);
       },
@@ -186,8 +268,10 @@ export class Bootstrap {
     });
 
     boucle.demarrer();
-    // Focus automatique sur le canvas : les touches fonctionnent sans clic préalable.
     rendu.obtenirCanvas().focus();
-    Logger.info('Le Petit Prince — jalon M3 démarré.');
+    Logger.info('Le Petit Prince — jalon M6 démarré.');
+
+    // -- Démarrage : menu principal en premier -----------------------
+    menuPrincipal.ouvrir();
   }
 }

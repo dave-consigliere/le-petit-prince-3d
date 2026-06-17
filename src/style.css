@@ -351,3 +351,268 @@ body {
   width: 0%;
   transition: width 0.15s ease-out;
 }
+
+/* =====================================================================
+   M6 — MENUS, CHARGEMENT, FINALE, ACCESSIBILITÉ
+   ===================================================================== */
+
+/* Couches superposées (ordre de z-index) :
+   90  HUD                 100 jauges    110 dialogue
+   120 carte planètes      200 menu pause 210 chargement
+   220 menu principal      230 paramètres 240 finale
+*/
+
+/* ----- Menu principal ----------------------------------------------- */
+#menu-principal {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px;
+  background: linear-gradient(180deg, #f0e0c0 0%, #e0c098 100%);
+  font-family: Georgia, 'Times New Roman', serif;
+  z-index: 220;
+}
+.menu-titre {
+  font-size: 56px;
+  color: #3a2810;
+  margin: 0;
+  font-style: italic;
+  text-shadow: 0 2px 0 rgba(255,255,255,0.4);
+}
+.menu-soustitre {
+  font-size: 18px;
+  color: #6a4818;
+  font-style: italic;
+  margin-bottom: 30px;
+}
+.menu-citation {
+  font-size: 14px;
+  color: #7a5828;
+  font-style: italic;
+  text-align: center;
+  line-height: 1.5;
+  margin: 20px 0 30px;
+}
+.menu-boutons {
+  display: flex; flex-direction: column;
+  gap: 12px;
+  min-width: 240px;
+}
+.menu-bouton {
+  padding: 12px 24px;
+  font-family: inherit;
+  font-size: 16px;
+  font-style: italic;
+  color: #3a2810;
+  background: rgba(253, 248, 238, 0.85);
+  border: 1.5px solid rgba(180, 145, 90, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.menu-bouton:hover:not(:disabled) {
+  background: rgba(255, 250, 235, 1);
+  transform: translateY(-1px);
+}
+.menu-bouton:focus-visible {
+  outline: 2px solid #8a5828;
+  outline-offset: 2px;
+}
+.menu-bouton:disabled,
+.bouton-desactive {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.bouton-secondaire {
+  background: rgba(230, 220, 200, 0.7);
+  font-size: 13px;
+}
+
+/* ----- Menu pause --------------------------------------------------- */
+#menu-pause {
+  position: fixed; inset: 0;
+  background: rgba(20, 20, 30, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+}
+.pause-panneau {
+  background: rgba(253, 248, 238, 0.97);
+  border: 1.5px solid rgba(180, 145, 90, 0.4);
+  border-radius: 14px;
+  padding: 26px 36px;
+  text-align: center;
+  min-width: 280px;
+}
+.pause-titre {
+  margin: 0 0 18px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  color: #3a2810;
+  font-size: 26px;
+}
+
+/* ----- Paramètres --------------------------------------------------- */
+#menu-parametres {
+  position: fixed; inset: 0;
+  background: rgba(20, 20, 30, 0.55);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 230;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+.parametres-panneau {
+  background: rgba(253, 248, 238, 0.98);
+  border: 1.5px solid rgba(180, 145, 90, 0.4);
+  border-radius: 14px;
+  padding: 24px 30px;
+  min-width: 380px;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.parametres-titre {
+  margin: 0 0 18px;
+  font-style: italic;
+  color: #3a2810;
+  font-size: 24px;
+  text-align: center;
+}
+.parametres-section {
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(160, 120, 70, 0.2);
+}
+.parametres-section h3 {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #6a4818;
+  font-style: italic;
+}
+.param-ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 0;
+  font-size: 14px;
+  color: #3a2810;
+  gap: 12px;
+}
+.param-ligne input[type="range"] { width: 160px; }
+.param-ligne select {
+  padding: 4px 8px;
+  font-family: inherit;
+  border-radius: 4px;
+  border: 1px solid rgba(160, 120, 70, 0.4);
+  background: rgba(255, 250, 240, 0.9);
+}
+.param-case { justify-content: flex-start; gap: 10px; }
+.param-case input { cursor: pointer; }
+.parametres-ligne-boutons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  gap: 10px;
+}
+
+/* ----- Écran de chargement ------------------------------------------ */
+#ecran-chargement {
+  position: fixed; inset: 0;
+  background: linear-gradient(180deg, #f0e0c0 0%, #d8b890 100%);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 210;
+}
+#ecran-chargement.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.chargement-conteneur {
+  text-align: center;
+  max-width: 600px;
+  padding: 0 30px;
+}
+.chargement-citation {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: #3a2810;
+  line-height: 1.5;
+  margin-bottom: 40px;
+}
+.chargement-indicateur {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto;
+  border: 3px solid rgba(120, 80, 30, 0.2);
+  border-top-color: #8a5828;
+  border-radius: 50%;
+  animation: rotation-chargement 1.2s linear infinite;
+}
+@keyframes rotation-chargement {
+  to { transform: rotate(360deg); }
+}
+
+/* ----- Scène finale ------------------------------------------------- */
+#finale-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(20, 24, 40, 0.15);
+  transition: background 2s ease;
+  z-index: 240;
+}
+#finale-texte {
+  position: absolute;
+  bottom: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 720px;
+  padding: 0 30px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-style: italic;
+  color: #f4e8d0;
+  text-align: center;
+  line-height: 1.6;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+}
+#finale-texte.apparition {
+  animation: finale-apparition 1.4s ease forwards;
+}
+@keyframes finale-apparition {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+#finale-indication {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: Georgia, serif;
+  font-size: 12px;
+  color: rgba(244, 232, 208, 0.5);
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+/* ----- Accessibilité : tailles de texte ----------------------------- */
+.taille-texte-grand .fenetre-dialogue-texte,
+.taille-texte-grand .entree-journal,
+.taille-texte-grand .menu-bouton { font-size: 18px; }
+.taille-texte-tres-grand .fenetre-dialogue-texte,
+.taille-texte-tres-grand .entree-journal,
+.taille-texte-tres-grand .menu-bouton { font-size: 22px; }
+
+/* Contraste élevé */
+.contraste-eleve #fenetre-dialogue,
+.contraste-eleve #fenetre-journal {
+  background: #fdf8ee !important;
+  color: #000 !important;
+  border-color: #000 !important;
+}
+.contraste-eleve .fenetre-dialogue-texte,
+.contraste-eleve .entree-journal { color: #000 !important; }
+
+/* Sous-titres : peut masquer certains effets visuels superflus */
+.sous-titres-off .effet-typewriter { animation: none; }
