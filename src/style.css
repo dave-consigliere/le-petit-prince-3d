@@ -616,3 +616,23 @@ body {
 
 /* Sous-titres : peut masquer certains effets visuels superflus */
 .sous-titres-off .effet-typewriter { animation: none; }
+
+
+/* =====================================================================
+   FIX HIDDEN — L'attribut [hidden] doit toujours masquer l'élément,
+   même quand un display:flex est défini par d'autres règles.
+   Spécificité plus élevée pour gagner contre les sélecteurs d'ID.
+   ===================================================================== */
+[hidden],
+#menu-principal[hidden],
+#menu-pause[hidden],
+#menu-parametres[hidden],
+#ecran-chargement[hidden],
+#carte-planetes[hidden],
+#fenetre-dialogue[hidden],
+#fenetre-journal[hidden],
+#bouton-interaction[hidden],
+#jauge-apprivoisement[hidden],
+#finale-overlay[hidden] {
+  display: none !important;
+}
