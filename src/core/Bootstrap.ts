@@ -31,6 +31,7 @@ import { MenuPrincipal } from '../ui/menus/MenuPrincipal';
 import { MenuPause } from '../ui/menus/MenuPause';
 import { MenuParametres } from '../ui/menus/MenuParametres';
 import { EcranChargement } from '../ui/menus/EcranChargement';
+import { Livre } from '../ui/livre/Livre';
 import { Logger } from '../utilities/Logger';
 
 /**
@@ -82,6 +83,7 @@ export class Bootstrap {
     const menuPrincipal = new MenuPrincipal(save);
     const menuPause = new MenuPause();
     const menuParametres = new MenuParametres(preferences);
+    const livre = new Livre(progression);
 
     // Déblocage audio
     const debloquerAudio = () => {
@@ -187,6 +189,11 @@ export class Bootstrap {
       });
     });
 
+    menuPrincipal.surLivre(() => {
+      menuPrincipal.fermer();
+      livre.ouvrir(() => menuPrincipal.ouvrir());
+    });
+
     menuPause.surReprendre(() => menuPause.fermer());
     menuPause.surParametres(() => {
       menuPause.fermer();
@@ -269,6 +276,30 @@ export class Bootstrap {
 
     boucle.demarrer();
     rendu.obtenirCanvas().focus();
+
+    // Outils de test (console) — à retirer après validation
+    (window as unknown as { __lpp: object }).__lpp = {
+      progression,
+      save,
+      preferences,
+      debloquerTout: () => {
+        for (const id of [
+          'b612',
+          'planete-roi',
+          'planete-vaniteux',
+          'planete-buveur',
+          'planete-businessman',
+          'planete-allumeur',
+          'planete-geographe',
+          'terre',
+          'finale',
+        ]) {
+          progression.debloquerSouvenir(id);
+        }
+        console.log('Toutes les scènes débloquées.');
+      },
+    };
+
     Logger.info('Le Petit Prince — jalon M6 démarré.');
 
     // -- Démarrage : menu principal en premier -----------------------

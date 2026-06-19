@@ -636,3 +636,223 @@ body {
 #finale-overlay[hidden] {
   display: none !important;
 }
+
+/* =====================================================================
+   LIVRE — Intégration du livre dans le jeu (M7)
+   ===================================================================== */
+#livre {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #f4e8d0 0%, #e8d4b0 100%);
+  display: flex;
+  flex-direction: column;
+  font-family: Georgia, 'Times New Roman', serif;
+  z-index: 250;
+  color: #3a2810;
+}
+
+.livre-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 32px;
+  border-bottom: 2px solid rgba(140, 90, 40, 0.25);
+  background: rgba(255, 248, 230, 0.5);
+}
+
+.livre-entete h2 {
+  margin: 0;
+  font-size: 28px;
+  font-style: italic;
+  color: #3a2810;
+  display: inline-block;
+}
+
+.livre-soustitre {
+  margin-left: 14px;
+  font-size: 14px;
+  color: #6a4818;
+  font-style: italic;
+}
+
+.livre-fermer {
+  background: rgba(253, 248, 238, 0.85);
+  border: 1px solid rgba(180, 145, 90, 0.5);
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-family: inherit;
+  font-style: italic;
+  font-size: 14px;
+  color: #6a4818;
+  cursor: pointer;
+}
+.livre-fermer:hover { background: rgba(255, 250, 235, 1); }
+
+.livre-corps {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ---- Sommaire (colonne gauche) ---- */
+.livre-sommaire {
+  border-right: 1px solid rgba(140, 90, 40, 0.2);
+  padding: 18px 14px;
+  overflow-y: auto;
+  background: rgba(250, 240, 220, 0.4);
+}
+
+.livre-sommaire h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #6a4818;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.livre-sommaire-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.livre-sommaire-liste li { margin: 2px 0; }
+
+.livre-sommaire-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #5a3a18;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.livre-sommaire-item:hover {
+  background: rgba(200, 170, 120, 0.2);
+}
+
+.livre-sommaire-item.actif {
+  background: rgba(180, 145, 90, 0.25);
+  color: #3a2810;
+  font-weight: bold;
+}
+
+.livre-sommaire-num {
+  font-style: italic;
+  color: #8a6028;
+  min-width: 22px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.livre-sommaire-titre { flex: 1; }
+
+.livre-sommaire-marque {
+  color: #6a8a40;
+  font-weight: bold;
+}
+
+/* ---- Page courante (centre) ---- */
+.livre-page {
+  padding: 40px 60px;
+  overflow-y: auto;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.livre-page-numero {
+  text-align: center;
+  font-style: italic;
+  color: #8a6028;
+  margin-bottom: 8px;
+  letter-spacing: 2px;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.livre-page-titre {
+  text-align: center;
+  font-size: 32px;
+  font-style: italic;
+  color: #3a2810;
+  margin: 0 0 28px;
+  font-weight: normal;
+}
+
+.livre-page-extrait {
+  margin: 28px 0;
+  padding: 18px 28px;
+  border-left: 3px solid rgba(140, 90, 40, 0.5);
+  font-size: 17px;
+  font-style: italic;
+  color: #3a2810;
+  line-height: 1.7;
+  background: rgba(255, 250, 235, 0.4);
+}
+
+.livre-page-paraphrase {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #4a3010;
+  text-align: justify;
+  margin: 20px 0;
+}
+
+.livre-note {
+  margin-top: 32px;
+  padding: 12px 16px;
+  background: rgba(200, 170, 120, 0.15);
+  border-left: 2px solid rgba(140, 90, 40, 0.3);
+  font-size: 12px;
+  color: #6a4818;
+  line-height: 1.5;
+}
+
+/* ---- Navigation page-par-page ---- */
+.livre-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 32px;
+  border-top: 1px solid rgba(140, 90, 40, 0.25);
+  background: rgba(255, 248, 230, 0.5);
+}
+
+.livre-nav-bouton {
+  background: rgba(253, 248, 238, 0.85);
+  border: 1px solid rgba(180, 145, 90, 0.5);
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-family: inherit;
+  font-style: italic;
+  font-size: 14px;
+  color: #5a3a18;
+  cursor: pointer;
+  min-width: 130px;
+}
+
+.livre-nav-bouton:hover:not(:disabled) {
+  background: rgba(255, 250, 235, 1);
+}
+
+.livre-nav-bouton:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.livre-indicateur-page {
+  font-style: italic;
+  color: #6a4818;
+  font-size: 13px;
+  letter-spacing: 1px;
+}

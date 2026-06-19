@@ -15,6 +15,7 @@ export class MenuPrincipal {
   private callbackNouvellePartie: (() => void) | null = null;
   private callbackContinuer: (() => void) | null = null;
   private callbackParametres: (() => void) | null = null;
+  private callbackLivre: (() => void) | null = null;
 
   constructor(private readonly save: SaveManager) {
     this.racine = document.createElement('div');
@@ -40,9 +41,10 @@ export class MenuPrincipal {
 
     const btnNouveau = this.creerBouton('Nouvelle partie', () => this.callbackNouvellePartie?.());
     this.btnContinuer = this.creerBouton('Continuer', () => this.callbackContinuer?.());
+    const btnLivre = this.creerBouton('Le livre', () => this.callbackLivre?.());
     const btnParams = this.creerBouton('Paramètres', () => this.callbackParametres?.());
 
-    boutons.append(btnNouveau, this.btnContinuer, btnParams);
+    boutons.append(btnNouveau, this.btnContinuer, btnLivre, btnParams);
     this.racine.append(titre, soustitre, citation, boutons);
     document.body.appendChild(this.racine);
   }
@@ -70,6 +72,9 @@ export class MenuPrincipal {
   }
   surParametres(cb: () => void): void {
     this.callbackParametres = cb;
+  }
+  surLivre(cb: () => void): void {
+    this.callbackLivre = cb;
   }
 
   private creerBouton(libelle: string, action: () => void): HTMLButtonElement {
